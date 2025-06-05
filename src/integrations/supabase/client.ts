@@ -8,4 +8,19 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const isProduction = process.env.NODE_ENV === 'production';
+const siteUrl = isProduction ? 'https://memvault.onrender.com' : 'http://localhost:3000';
+
+export const supabase = createClient<Database>(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY,
+  {
+    auth: {
+      flowType: 'pkce',
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      persistSession: true,
+      redirectTo: `${siteUrl}/auth/callback`,
+    }
+  }
+);
