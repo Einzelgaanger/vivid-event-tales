@@ -3,7 +3,7 @@ services:
     name: memvault
     env: node
     buildCommand: |
-      npm ci --legacy-peer-deps
+      npm install --legacy-peer-deps
       npm run build
     startCommand: npx vite preview --port $PORT --host
     envVars:
