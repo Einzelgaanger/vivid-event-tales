@@ -2,13 +2,13 @@ services:
   - type: web
     name: memvault
     env: node
-    buildCommand: npm install && npm run build
-    startCommand: npm run preview
+    buildCommand: |
+      npm install --legacy-peer-deps
+      npm run build
+    startCommand: npm run preview -- --port $PORT
     envVars:
       - key: NODE_VERSION
         value: 20.11.1
       - key: PORT
         value: 10000
     plan: free
-    node:
-      packageManager: npm
