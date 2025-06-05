@@ -9,7 +9,123 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          additional_notes: string | null
+          created_at: string
+          description: string | null
+          event_date: string
+          event_time: string | null
+          id: string
+          media_urls: string[] | null
+          status: string | null
+          title: string
+          updated_at: string
+          urgency: string | null
+          user_id: string
+          venue: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_time?: string | null
+          id?: string
+          media_urls?: string[] | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          urgency?: string | null
+          user_id: string
+          venue?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_time?: string | null
+          id?: string
+          media_urls?: string[] | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          urgency?: string | null
+          user_id?: string
+          venue?: string | null
+        }
+        Relationships: []
+      }
+      journal_entries: {
+        Row: {
+          created_at: string
+          description: string | null
+          entry_date: string
+          entry_time: string | null
+          id: string
+          media_urls: string[] | null
+          mood: string | null
+          rating: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          entry_date: string
+          entry_time?: string | null
+          id?: string
+          media_urls?: string[] | null
+          mood?: string | null
+          rating?: number | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          entry_date?: string
+          entry_time?: string | null
+          id?: string
+          media_urls?: string[] | null
+          mood?: string | null
+          rating?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
