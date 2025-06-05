@@ -1,12 +1,13 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Clock, Star, Trash2, Edit, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, Star, Trash2, Edit, Heart, ChevronLeft, ChevronRight, Download, Play, Pause } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { EditJournalEntry } from './EditJournalEntry';
 
 interface JournalEntry {
   id: string;
@@ -28,11 +29,26 @@ interface JournalCardProps {
 
 export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
   const [showFullView, setShowFullView] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const { toast } = useToast();
 
-  const getMoodEmoji = (mood: string | null) => {
+  // Auto-slideshow functionality
+  useEffect(() => {
+    if (showFullView && entry.media_urls && entry.media_urls.length > 1 && isAutoPlaying) {
+      const interval = setInterval(() => {
+        setCurrentMediaIndex((prev) => 
+          prev === entry.media_urls!.length - 1 ? 0 : prev + 1
+        );
+      }, 4000); // Change every 4 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [showFullView, entry.media_urls, isAutoPlaying]);
+
+  const getMoodIcon = (mood: string | null) => {
     const moodMap: { [key: string]: string } = {
       'happy': '😊',
       'sad': '😢',
@@ -86,7 +102,22 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
     }
   };
 
+  const handleEdit = () => {
+    setShowEditForm(true);
+    setShowFullView(false);
+  };
+
+  const handleEditSuccess = () => {
+    setShowEditForm(false);
+    onUpdate();
+    toast({
+      title: 'Memory Updated',
+      description: 'Your memory has been successfully updated.',
+    });
+  };
+
   const nextMedia = () => {
+    setIsAutoPlaying(false); // Pause auto-play when user manually navigates
     if (entry.media_urls && entry.media_urls.length > 1) {
       setCurrentMediaIndex((prev) => 
         prev === entry.media_urls!.length - 1 ? 0 : prev + 1
@@ -95,11 +126,22 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
   };
 
   const prevMedia = () => {
+    setIsAutoPlaying(false); // Pause auto-play when user manually navigates
     if (entry.media_urls && entry.media_urls.length > 1) {
       setCurrentMediaIndex((prev) => 
         prev === 0 ? entry.media_urls!.length - 1 : prev - 1
       );
     }
+  };
+
+  const downloadFile = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const formatDate = (dateString: string) => {
@@ -110,16 +152,30 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
     }
   };
 
+  if (showEditForm) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <EditJournalEntry
+            entry={entry}
+            onSuccess={handleEditSuccess}
+            onCancel={() => setShowEditForm(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (showFullView) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <Card className="border-0 shadow-2xl">
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white">
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-2xl mb-2">{entry.title}</CardTitle>
-                  <div className="flex items-center gap-4 text-white/90">
+                  <div className="flex items-center gap-4 text-white/90 flex-wrap">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       {formatDate(entry.entry_date)}
@@ -132,13 +188,15 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
                     )}
                     {entry.mood && (
                       <div className="flex items-center gap-1">
-                        <span className="text-lg">{getMoodEmoji(entry.mood)}</span>
+                        <span className="text-lg">{getMoodIcon(entry.mood)}</span>
                         <span className="capitalize">{entry.mood}</span>
                       </div>
                     )}
                     {entry.rating && (
                       <div className="flex items-center gap-1">
-                        {'⭐'.repeat(entry.rating)}
+                        {Array.from({ length: entry.rating }, (_, i) => (
+                          <Star key={i} className="w-4 h-4 fill-current" />
+                        ))}
                       </div>
                     )}
                   </div>
@@ -155,7 +213,7 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
             </CardHeader>
             
             <CardContent className="p-6">
-              {/* Media Display */}
+              {/* Media Display with Auto-slideshow */}
               {entry.media_urls && entry.media_urls.length > 0 && (
                 <div className="mb-6">
                   <div className="relative bg-gray-100 rounded-lg overflow-hidden">
@@ -195,13 +253,51 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
                         >
                           <ChevronRight className="w-4 h-4" />
                         </Button>
-                        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2">
+                        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex items-center gap-2">
                           <Badge variant="secondary">
                             {currentMediaIndex + 1} / {entry.media_urls.length}
                           </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                            className="bg-black/50 text-white hover:bg-black/70 p-1 h-8 w-8"
+                          >
+                            {isAutoPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                          </Button>
                         </div>
                       </>
                     )}
+                    
+                    {/* Download Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => downloadFile(entry.media_urls![currentMediaIndex], `memory-${currentMediaIndex + 1}`)}
+                      className="absolute top-2 right-2 bg-black/50 text-white hover:bg-black/70"
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Download All Media */}
+              {entry.media_urls && entry.media_urls.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex flex-wrap gap-2">
+                    {entry.media_urls.map((url, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadFile(url, `memory-${index + 1}`)}
+                        className="flex items-center gap-1"
+                      >
+                        <Download className="w-3 h-3" />
+                        File {index + 1}
+                      </Button>
+                    ))}
                   </div>
                 </div>
               )}
@@ -220,7 +316,7 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
                   Created {format(parseISO(entry.created_at), 'MMM dd, yyyy')}
                 </Badge>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleEdit}>
                     <Edit className="w-4 h-4 mr-1" />
                     Edit
                   </Button>
@@ -257,25 +353,37 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
               </div>
               {entry.mood && (
                 <div className="flex items-center gap-1">
-                  <span className="text-base">{getMoodEmoji(entry.mood)}</span>
+                  <span className="text-base">{getMoodIcon(entry.mood)}</span>
                 </div>
               )}
               {entry.rating && (
                 <div className="flex items-center">
-                  {'⭐'.repeat(entry.rating)}
+                  {Array.from({ length: entry.rating }, (_, i) => (
+                    <Star key={i} className="w-3 h-3 fill-current text-yellow-500" />
+                  ))}
                 </div>
               )}
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDelete}
-            disabled={deleting}
-            className="text-gray-400 hover:text-red-500"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleEdit}
+              className="text-gray-400 hover:text-blue-500"
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="text-gray-400 hover:text-red-500"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       

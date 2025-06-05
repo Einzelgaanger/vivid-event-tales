@@ -31,14 +31,14 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
   const { toast } = useToast();
 
   const moodOptions = [
-    { value: 'happy', label: '😊 Happy', emoji: '😊' },
-    { value: 'sad', label: '😢 Sad', emoji: '😢' },
-    { value: 'excited', label: '🤩 Excited', emoji: '🤩' },
-    { value: 'peaceful', label: '😌 Peaceful', emoji: '😌' },
-    { value: 'anxious', label: '😰 Anxious', emoji: '😰' },
-    { value: 'grateful', label: '🙏 Grateful', emoji: '🙏' },
-    { value: 'tired', label: '😴 Tired', emoji: '😴' },
-    { value: 'angry', label: '😠 Angry', emoji: '😠' },
+    { value: 'happy', label: 'Happy' },
+    { value: 'sad', label: 'Sad' },
+    { value: 'excited', label: 'Excited' },
+    { value: 'peaceful', label: 'Peaceful' },
+    { value: 'anxious', label: 'Anxious' },
+    { value: 'grateful', label: 'Grateful' },
+    { value: 'tired', label: 'Tired' },
+    { value: 'angry', label: 'Angry' },
   ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,10 +123,10 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
 
   return (
     <Card className="w-full">
-      <CardHeader className="text-center bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg">
+      <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-t-lg">
         <div className="flex justify-between items-center">
           <div></div>
-          <CardTitle className="text-2xl">✨ Create New Memory</CardTitle>
+          <CardTitle className="text-2xl">Create New Memory</CardTitle>
           <Button variant="ghost" size="sm" onClick={onCancel} className="text-white hover:bg-white/20">
             <X className="w-4 h-4" />
           </Button>
@@ -142,13 +142,13 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Give your memory a beautiful title... 💭"
+                placeholder="Give your memory a title..."
                 required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="mood">How are you feeling? 😊</Label>
+              <Label htmlFor="mood">Mood</Label>
               <Select value={mood} onValueChange={setMood}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select your mood" />
@@ -165,12 +165,12 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Tell your story... 📖</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe this beautiful moment in detail..."
+              placeholder="Describe this moment in detail..."
               rows={4}
             />
           </div>
@@ -198,7 +198,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
             </div>
 
             <div className="space-y-2">
-              <Label>Rate this day ⭐</Label>
+              <Label>Rating</Label>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Button
@@ -217,7 +217,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
           </div>
 
           <div className="space-y-2">
-            <Label>Add Photos & Videos 📸</Label>
+            <Label>Add Photos & Videos</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
               <input
                 type="file"
@@ -268,9 +268,9 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
             <Button
               type="submit"
               disabled={loading || uploading}
-              className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
-              {uploading ? 'Uploading...' : loading ? 'Saving...' : 'Save Memory ✨'}
+              {uploading ? 'Uploading...' : loading ? 'Saving...' : 'Save Memory'}
             </Button>
           </div>
         </form>

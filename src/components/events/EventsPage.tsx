@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Search, Calendar, MapPin, Clock, AlertCircle } from 'lucide-react';
+import { Plus, Search, Calendar, MapPin, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { CreateEvent } from './CreateEvent';
 import { EventCard } from './EventCard';
 import { format } from 'date-fns';
@@ -78,18 +78,9 @@ export function EventsPage() {
     setShowCreateForm(false);
     fetchEvents();
     toast({
-      title: 'Event Created! 🎉',
+      title: 'Event Created',
       description: 'Your event has been successfully scheduled'
     });
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
   };
 
   const getStatusStats = () => {
@@ -107,7 +98,7 @@ export function EventsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
@@ -116,11 +107,11 @@ export function EventsPage() {
     <div className="max-w-6xl mx-auto p-4 space-y-6">
       {/* Header */}
       <div className="text-center py-8">
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Your Event Planner 📅
+        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+          Event Manager
         </h1>
         <p className="text-gray-600 text-lg">
-          Never miss an important moment - organize your life with style ✨
+          Organize and manage your events with precision
         </p>
       </div>
 
@@ -129,7 +120,7 @@ export function EventsPage() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Search events... 🔍"
+            placeholder="Search events..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -138,7 +129,7 @@ export function EventsPage() {
         
         <Button
           onClick={() => setShowCreateForm(true)}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-6 py-2 rounded-full shadow-lg transform transition hover:scale-105"
+          className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg transform transition hover:scale-105"
         >
           <Plus className="w-5 h-5 mr-2" />
           New Event
@@ -159,7 +150,7 @@ export function EventsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-100 to-blue-200 border-0">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardContent className="p-4 text-center">
             <Calendar className="w-8 h-8 mx-auto mb-2 text-blue-600" />
             <p className="text-2xl font-bold text-blue-800">{events.length}</p>
@@ -167,7 +158,7 @@ export function EventsPage() {
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-orange-100 to-orange-200 border-0">
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
           <CardContent className="p-4 text-center">
             <Clock className="w-8 h-8 mx-auto mb-2 text-orange-600" />
             <p className="text-2xl font-bold text-orange-800">{stats.pending}</p>
@@ -175,15 +166,15 @@ export function EventsPage() {
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-green-100 to-green-200 border-0">
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <CardContent className="p-4 text-center">
-            <div className="w-8 h-8 mx-auto mb-2 text-green-600 text-2xl">✅</div>
+            <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-600" />
             <p className="text-2xl font-bold text-green-800">{stats.completed}</p>
             <p className="text-green-600">Completed</p>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-red-100 to-red-200 border-0">
+        <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
           <CardContent className="p-4 text-center">
             <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-600" />
             <p className="text-2xl font-bold text-red-800">{stats.overdue}</p>
@@ -195,7 +186,7 @@ export function EventsPage() {
       {/* Events Grid */}
       {filteredEvents.length === 0 ? (
         <Card className="p-12 text-center bg-white/50 border-dashed border-2 border-gray-300">
-          <div className="text-6xl mb-4">📅</div>
+          <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-400" />
           <h3 className="text-xl font-semibold text-gray-600 mb-2">
             {searchTerm ? 'No events found' : 'Start Planning Your Events'}
           </h3>
@@ -208,9 +199,9 @@ export function EventsPage() {
           {!searchTerm && (
             <Button
               onClick={() => setShowCreateForm(true)}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
             >
-              Plan First Event 🎯
+              Plan First Event
             </Button>
           )}
         </Card>

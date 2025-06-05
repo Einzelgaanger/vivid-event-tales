@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,22 +10,38 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, Upload, Calendar, MapPin } from 'lucide-react';
 
-interface CreateEventProps {
+interface Event {
+  id: string;
+  title: string;
+  description: string | null;
+  venue: string | null;
+  event_date: string;
+  event_time: string | null;
+  urgency: string;
+  status: string;
+  additional_notes: string | null;
+  media_urls: string[] | null;
+  created_at: string;
+}
+
+interface EditEventProps {
+  event: Event;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [venue, setVenue] = useState('');
-  const [eventDate, setEventDate] = useState(new Date().toISOString().split('T')[0]);
-  const [eventTime, setEventTime] = useState('');
-  const [urgency, setUrgency] = useState('medium');
-  const [additionalNotes, setAdditionalNotes] = useState('');
+export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
+  const [title, setTitle] = useState(event.title);
+  const [description, setDescription] = useState(event.description || '');
+  const [venue, setVenue] = useState(event.venue || '');
+  const [eventDate, setEventDate] = useState(event.event_date);
+  const [eventTime, setEventTime] = useState(event.event_time || '');
+  const [urgency, setUrgency] = useState(event.urgency);
+  const [additionalNotes, setAdditionalNotes] = useState(event.additional_notes || '');
   const [uploading, setUploading] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [existingMediaUrls, setExistingMediaUrls] = useState<string[]>(event.media_urls || []);
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -44,6 +59,10 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
   const removeFile = (index: number) => {
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingMedia = (index: number) => {
+    setExistingMediaUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const uploadFiles = async (files: File[]): Promise<string[]> => {
@@ -80,18 +99,19 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
     setLoading(true);
     try {
-      let mediaUrls: string[] = [];
+      let newMediaUrls: string[] = [];
       
       if (mediaFiles.length > 0) {
         setUploading(true);
-        mediaUrls = await uploadFiles(mediaFiles);
+        newMediaUrls = await uploadFiles(mediaFiles);
         setUploading(false);
       }
 
+      const allMediaUrls = [...existingMediaUrls, ...newMediaUrls];
+
       const { error } = await supabase
         .from('events')
-        .insert({
-          user_id: user?.id,
+        .update({
           title: title.trim(),
           description: description.trim() || null,
           venue: venue.trim() || null,
@@ -99,17 +119,22 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
           event_time: eventTime || null,
           urgency,
           additional_notes: additionalNotes.trim() || null,
-          media_urls: mediaUrls.length > 0 ? mediaUrls : null
-        });
+          media_urls: allMediaUrls.length > 0 ? allMediaUrls : null
+        })
+        .eq('id', event.id);
 
       if (error) throw error;
 
+      toast({
+        title: 'Event Updated',
+        description: 'Your event has been successfully updated'
+      });
       onSuccess();
     } catch (error) {
-      console.error('Error creating event:', error);
+      console.error('Error updating event:', error);
       toast({
         title: 'Error',
-        description: 'Failed to create event',
+        description: 'Failed to update event',
         variant: 'destructive'
       });
     } finally {
@@ -123,7 +148,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
       <CardHeader className="text-center bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-lg">
         <div className="flex justify-between items-center">
           <div></div>
-          <CardTitle className="text-2xl">Create New Event</CardTitle>
+          <CardTitle className="text-2xl">Edit Event</CardTitle>
           <Button variant="ghost" size="sm" onClick={onCancel} className="text-white hover:bg-white/20">
             <X className="w-4 h-4" />
           </Button>
@@ -224,6 +249,31 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
             />
           </div>
 
+          {/* Existing Media */}
+          {existingMediaUrls.length > 0 && (
+            <div className="space-y-2">
+              <Label>Current Files</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {existingMediaUrls.map((url, index) => (
+                  <div key={index} className="relative">
+                    <div className="bg-gray-100 rounded-lg p-2 text-center">
+                      <p className="text-xs truncate">File {index + 1}</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeExistingMedia(index)}
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label>Attach Files</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
@@ -278,7 +328,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
               disabled={loading || uploading}
               className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
             >
-              {uploading ? 'Uploading...' : loading ? 'Creating...' : 'Create Event'}
+              {uploading ? 'Uploading...' : loading ? 'Updating...' : 'Update Event'}
             </Button>
           </div>
         </form>

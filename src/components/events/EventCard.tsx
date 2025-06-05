@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Clock, MapPin, Trash2, Edit, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { Calendar, Clock, MapPin, Trash2, Edit, CheckCircle, AlertCircle, FileText, Download } from 'lucide-react';
 import { format, parseISO, isPast } from 'date-fns';
+import { EditEvent } from './EditEvent';
 
 interface Event {
   id: string;
@@ -30,6 +31,7 @@ interface EventCardProps {
 
 export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
   const [showFullView, setShowFullView] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [updating, setUpdating] = useState(false);
   const { toast } = useToast();
@@ -65,6 +67,20 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
     }
   };
 
+  const handleEdit = () => {
+    setShowEditForm(true);
+    setShowFullView(false);
+  };
+
+  const handleEditSuccess = () => {
+    setShowEditForm(false);
+    onUpdate();
+    toast({
+      title: 'Event Updated',
+      description: 'Your event has been successfully updated.',
+    });
+  };
+
   const handleStatusToggle = async () => {
     setUpdating(true);
     try {
@@ -78,7 +94,7 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
       if (error) throw error;
 
       toast({
-        title: newStatus === 'completed' ? 'Event Completed! 🎉' : 'Event Reopened',
+        title: newStatus === 'completed' ? 'Event Completed' : 'Event Reopened',
         description: newStatus === 'completed' 
           ? 'Great job finishing this event!' 
           : 'Event has been marked as pending again.'
@@ -94,6 +110,16 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
     } finally {
       setUpdating(false);
     }
+  };
+
+  const downloadFile = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const formatDate = (dateString: string) => {
@@ -125,12 +151,26 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
   const isOverdue = event.status === 'pending' && isPast(parseISO(event.event_date));
   const isCompleted = event.status === 'completed';
 
+  if (showEditForm) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <EditEvent
+            event={event}
+            onSuccess={handleEditSuccess}
+            onCancel={() => setShowEditForm(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (showFullView) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <Card className="border-0 shadow-2xl">
-            <CardHeader className={`text-white ${isCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-500' : isOverdue ? 'bg-gradient-to-r from-red-500 to-pink-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'}`}>
+            <CardHeader className={`text-white ${isCompleted ? 'bg-gradient-to-r from-green-600 to-emerald-600' : isOverdue ? 'bg-gradient-to-r from-red-600 to-pink-600' : 'bg-gradient-to-r from-blue-600 to-cyan-600'}`}>
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-2xl mb-2 flex items-center gap-2">
@@ -176,7 +216,7 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
               {/* Status Badge */}
               <div className="mb-4">
                 <Badge className={`${isCompleted ? 'bg-green-100 text-green-800' : isOverdue ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>
-                  {isCompleted ? '✅ Completed' : isOverdue ? '⚠️ Overdue' : '⏳ Pending'}
+                  {isCompleted ? 'Completed' : isOverdue ? 'Overdue' : 'Pending'}
                 </Badge>
               </div>
 
@@ -203,24 +243,47 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
                 </div>
               )}
 
-              {/* Media Files */}
+              {/* Media Files with Download */}
               {event.media_urls && event.media_urls.length > 0 && (
                 <div className="mb-6">
                   <h4 className="font-semibold mb-3">Attached Files</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {event.media_urls.map((url, index) => (
-                      <div key={index} className="bg-gray-100 rounded-lg overflow-hidden">
+                      <div key={index} className="bg-gray-100 rounded-lg overflow-hidden relative group">
                         {url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') ? (
                           <video src={url} controls className="w-full h-32 object-cover" />
                         ) : url.includes('.pdf') || url.includes('.doc') ? (
-                          <div className="p-4 text-center">
+                          <div className="p-4 text-center h-32 flex flex-col justify-center">
                             <FileText className="w-8 h-8 mx-auto mb-2 text-gray-500" />
                             <p className="text-xs">Document {index + 1}</p>
                           </div>
                         ) : (
                           <img src={url} alt={`Attachment ${index + 1}`} className="w-full h-32 object-cover" />
                         )}
+                        <Button
+                          size="sm"
+                          onClick={() => downloadFile(url, `event-file-${index + 1}`)}
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white hover:bg-black/70"
+                        >
+                          <Download className="w-3 h-3" />
+                        </Button>
                       </div>
+                    ))}
+                  </div>
+                  
+                  {/* Download All Files */}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {event.media_urls.map((url, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadFile(url, `event-file-${index + 1}`)}
+                        className="flex items-center gap-1"
+                      >
+                        <Download className="w-3 h-3" />
+                        File {index + 1}
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -240,7 +303,7 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
                   >
                     {updating ? 'Updating...' : isCompleted ? 'Mark Pending' : 'Mark Complete'}
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleEdit}>
                     <Edit className="w-4 h-4 mr-1" />
                     Edit
                   </Button>
@@ -263,7 +326,7 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
   }
 
   return (
-    <Card className={`cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] border-l-4 ${isCompleted ? 'border-l-green-500 bg-green-50/50' : isOverdue ? 'border-l-red-500 bg-red-50/50' : 'border-l-purple-500 bg-white/80'} backdrop-blur-sm shadow-md`}>
+    <Card className={`cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] border-l-4 ${isCompleted ? 'border-l-green-500 bg-green-50/50' : isOverdue ? 'border-l-red-500 bg-red-50/50' : 'border-l-blue-500 bg-white/80'} backdrop-blur-sm shadow-md`}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div className="flex-1" onClick={() => setShowFullView(true)}>
@@ -298,7 +361,15 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
               disabled={updating}
               className={isCompleted ? "text-gray-400 hover:text-gray-600" : "text-green-400 hover:text-green-600"}
             >
-              {isCompleted ? <CheckCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+              <CheckCircle className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleEdit}
+              className="text-gray-400 hover:text-blue-500"
+            >
+              <Edit className="w-4 h-4" />
             </Button>
             <Button
               variant="ghost"
