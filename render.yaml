@@ -13,4 +13,6 @@ services:
         value: 10000
       - key: NODE_ENV
         value: production
+      - key: VITE_BASE_URL
+        value: "/"
     plan: free
