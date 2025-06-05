@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: memvault
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.1
+      - key: PORT
+        value: 10000
+    plan: free
