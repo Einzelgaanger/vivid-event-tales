@@ -30,7 +30,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   preview: {
-    port: 4173,
+    port: 10000,
     host: true,
+    strictPort: true,
   },
+  base: './',
 }));
