@@ -10,3 +10,5 @@ services:
       - key: PORT
         value: 10000
     plan: free
+    node:
+      packageManager: npm
