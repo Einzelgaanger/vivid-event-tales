@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, Mail, Lock, User, Heart } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, BookOpen } from 'lucide-react';
 
 interface AuthFormProps {
   mode: 'signin' | 'signup' | 'forgot';
@@ -51,7 +51,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
           });
         } else if (mode === 'signup') {
           toast({
-            title: 'Welcome to MemoryVault! 🎉',
+            title: 'Welcome to MemoryVault!',
             description: 'Check your email to verify your account'
           });
         }
@@ -84,19 +84,19 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
     <Card className="w-full max-w-md mx-auto bg-white/90 backdrop-blur-sm shadow-xl border-0">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full">
-            <Heart className="w-8 h-8 text-white" />
+          <div className="p-3 bg-gradient-to-br from-blue-500 to-green-500 rounded-full">
+            <BookOpen className="w-8 h-8 text-white" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+        <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
           {mode === 'signup' ? 'Join MemoryVault' : mode === 'signin' ? 'Welcome Back' : 'Reset Password'}
         </CardTitle>
         <CardDescription className="text-gray-600">
           {mode === 'signup' 
-            ? 'Start capturing your precious memories today 📸'
+            ? 'Start capturing your precious memories today'
             : mode === 'signin' 
-            ? 'Continue your memory journey 🌟'
-            : 'Enter your email to reset your password 🔑'
+            ? 'Continue your memory journey'
+            : 'Enter your email to reset your password'
           }
         </CardDescription>
       </CardHeader>
@@ -150,11 +150,11 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
             </div>
           )}
           
-          <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600" disabled={loading}>
+          <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600" disabled={loading}>
             {loading ? 'Loading...' : 
-             mode === 'signup' ? 'Create Account 🚀' : 
-             mode === 'signin' ? 'Sign In ✨' : 
-             'Send Reset Link 📧'}
+             mode === 'signup' ? 'Create Account' : 
+             mode === 'signin' ? 'Sign In' : 
+             'Send Reset Link'}
           </Button>
         </form>
 
@@ -191,25 +191,25 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
             <>
               <p className="text-gray-600">
                 Don't have an account?{' '}
-                <button onClick={() => onModeChange('signup')} className="text-purple-600 hover:underline font-medium">
+                <button onClick={() => onModeChange('signup')} className="text-blue-600 hover:underline font-medium">
                   Sign up
                 </button>
               </p>
-              <button onClick={() => onModeChange('forgot')} className="text-purple-600 hover:underline text-xs mt-2">
+              <button onClick={() => onModeChange('forgot')} className="text-blue-600 hover:underline text-xs mt-2">
                 Forgot your password?
               </button>
             </>
           ) : mode === 'signup' ? (
             <p className="text-gray-600">
               Already have an account?{' '}
-              <button onClick={() => onModeChange('signin')} className="text-purple-600 hover:underline font-medium">
+              <button onClick={() => onModeChange('signin')} className="text-blue-600 hover:underline font-medium">
                 Sign in
               </button>
             </p>
           ) : (
             <p className="text-gray-600">
               Remember your password?{' '}
-              <button onClick={() => onModeChange('signin')} className="text-purple-600 hover:underline font-medium">
+              <button onClick={() => onModeChange('signin')} className="text-blue-600 hover:underline font-medium">
                 Sign in
               </button>
             </p>
