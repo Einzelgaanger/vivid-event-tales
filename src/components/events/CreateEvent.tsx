@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,7 +68,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) {
+    if (!title.trim() || !user?.id) {
       toast({
         title: 'Error',
         description: 'Please enter a title for your event',
@@ -91,13 +90,13 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
       const { error } = await supabase
         .from('events')
         .insert({
-          user_id: user?.id,
+          user_id: user.id,
           title: title.trim(),
           description: description.trim() || null,
           venue: venue.trim() || null,
           event_date: eventDate,
           event_time: eventTime || null,
-          urgency,
+          urgency: urgency || null,
           additional_notes: additionalNotes.trim() || null,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null
         });
@@ -120,7 +119,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
   return (
     <Card className="w-full">
-      <CardHeader className="text-center bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-lg">
+      <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-t-lg">
         <div className="flex justify-between items-center">
           <div></div>
           <CardTitle className="text-2xl">Create New Event</CardTitle>
@@ -276,7 +275,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
             <Button
               type="submit"
               disabled={loading || uploading}
-              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
               {uploading ? 'Uploading...' : loading ? 'Creating...' : 'Create Event'}
             </Button>

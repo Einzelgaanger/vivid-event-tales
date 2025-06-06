@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -73,7 +72,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) {
+    if (!title.trim() || !user?.id) {
       toast({
         title: 'Error',
         description: 'Please enter a title for your memory',
@@ -95,11 +94,11 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
       const { error } = await supabase
         .from('journal_entries')
         .insert({
-          user_id: user?.id,
+          user_id: user.id,
           title: title.trim(),
           description: description.trim() || null,
           mood: mood || null,
-          rating,
+          rating: rating,
           entry_date: entryDate,
           entry_time: entryTime || null,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null

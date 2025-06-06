@@ -2,28 +2,16 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Calendar, MapPin, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { CreateEvent } from './CreateEvent';
 import { EventCard } from './EventCard';
-import { format } from 'date-fns';
+import type { Database } from '@/integrations/supabase/types';
 
-interface Event {
-  id: string;
-  title: string;
-  description: string | null;
-  venue: string | null;
-  event_date: string;
-  event_time: string | null;
-  urgency: string;
-  status: string;
-  additional_notes: string | null;
-  media_urls: string[] | null;
-  created_at: string;
-}
+type Event = Database['public']['Tables']['events']['Row'];
 
 export function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -45,7 +33,7 @@ export function EventsPage() {
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.venue?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.urgency.toLowerCase().includes(searchTerm.toLowerCase())
+      event.urgency?.toLowerCase().includes(searchTerm.toLowerCase())
     );
     // Sort by date (upcoming first)
     filtered.sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
@@ -54,10 +42,12 @@ export function EventsPage() {
 
   const fetchEvents = async () => {
     try {
+      if (!user?.id) return;
+      
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('event_date', { ascending: true });
 
       if (error) throw error;

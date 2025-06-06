@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,20 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, Upload, Star } from 'lucide-react';
+import type { Database } from '@/integrations/supabase/types';
 
-interface JournalEntry {
-  id: string;
-  title: string;
-  description: string | null;
-  mood: string | null;
-  rating: number | null;
-  entry_date: string;
-  entry_time: string | null;
-  media_urls: string[] | null;
-}
+type JournalEntry = Database['public']['Tables']['journal_entries']['Row'];
 
 interface EditJournalEntryProps {
   entry: JournalEntry;
@@ -36,10 +27,9 @@ export function EditJournalEntry({ entry, onSuccess, onCancel }: EditJournalEntr
   const [entryTime, setEntryTime] = useState(entry.entry_time || '');
   const [uploading, setUploading] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
   const [existingMediaUrls, setExistingMediaUrls] = useState<string[]>(entry.media_urls || []);
+  const [loading, setLoading] = useState(false);
   
-  const { user } = useAuth();
   const { toast } = useToast();
 
   const moodOptions = [
@@ -69,7 +59,7 @@ export function EditJournalEntry({ entry, onSuccess, onCancel }: EditJournalEntr
   const uploadFiles = async (files: File[]): Promise<string[]> => {
     const uploadPromises = files.map(async (file) => {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}/${Date.now()}.${fileExt}`;
+      const fileName = `${entry.user_id}/${Date.now()}.${fileExt}`;
       
       const { error } = await supabase.storage
         .from('media')
@@ -116,7 +106,7 @@ export function EditJournalEntry({ entry, onSuccess, onCancel }: EditJournalEntr
           title: title.trim(),
           description: description.trim() || null,
           mood: mood || null,
-          rating,
+          rating: rating,
           entry_date: entryDate,
           entry_time: entryTime || null,
           media_urls: allMediaUrls.length > 0 ? allMediaUrls : null
@@ -125,10 +115,6 @@ export function EditJournalEntry({ entry, onSuccess, onCancel }: EditJournalEntr
 
       if (error) throw error;
 
-      toast({
-        title: 'Memory Updated',
-        description: 'Your memory has been successfully updated'
-      });
       onSuccess();
     } catch (error) {
       console.error('Error updating journal entry:', error);
@@ -238,10 +224,10 @@ export function EditJournalEntry({ entry, onSuccess, onCancel }: EditJournalEntr
             </div>
           </div>
 
-          {/* Existing Media */}
+          {/* Existing media display */}
           {existingMediaUrls.length > 0 && (
             <div className="space-y-2">
-              <Label>Current Media</Label>
+              <Label>Current Photos & Videos</Label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {existingMediaUrls.map((url, index) => (
                   <div key={index} className="relative">
@@ -264,7 +250,7 @@ export function EditJournalEntry({ entry, onSuccess, onCancel }: EditJournalEntr
           )}
 
           <div className="space-y-2">
-            <Label>Add Photos & Videos</Label>
+            <Label>Add New Photos & Videos</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
               <input
                 type="file"

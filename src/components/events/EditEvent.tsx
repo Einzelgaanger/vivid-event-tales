@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,23 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, Upload, Calendar, MapPin } from 'lucide-react';
+import type { Database } from '@/integrations/supabase/types';
 
-interface Event {
-  id: string;
-  title: string;
-  description: string | null;
-  venue: string | null;
-  event_date: string;
-  event_time: string | null;
-  urgency: string;
-  status: string;
-  additional_notes: string | null;
-  media_urls: string[] | null;
-  created_at: string;
-}
+type Event = Database['public']['Tables']['events']['Row'];
 
 interface EditEventProps {
   event: Event;
@@ -36,14 +24,13 @@ export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
   const [venue, setVenue] = useState(event.venue || '');
   const [eventDate, setEventDate] = useState(event.event_date);
   const [eventTime, setEventTime] = useState(event.event_time || '');
-  const [urgency, setUrgency] = useState(event.urgency);
+  const [urgency, setUrgency] = useState(event.urgency || 'medium');
   const [additionalNotes, setAdditionalNotes] = useState(event.additional_notes || '');
   const [uploading, setUploading] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
   const [existingMediaUrls, setExistingMediaUrls] = useState<string[]>(event.media_urls || []);
+  const [loading, setLoading] = useState(false);
   
-  const { user } = useAuth();
   const { toast } = useToast();
 
   const urgencyOptions = [
@@ -68,7 +55,7 @@ export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
   const uploadFiles = async (files: File[]): Promise<string[]> => {
     const uploadPromises = files.map(async (file) => {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}/${Date.now()}.${fileExt}`;
+      const fileName = `${event.user_id}/${Date.now()}.${fileExt}`;
       
       const { error } = await supabase.storage
         .from('media')
@@ -117,7 +104,7 @@ export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
           venue: venue.trim() || null,
           event_date: eventDate,
           event_time: eventTime || null,
-          urgency,
+          urgency: urgency || null,
           additional_notes: additionalNotes.trim() || null,
           media_urls: allMediaUrls.length > 0 ? allMediaUrls : null
         })
@@ -125,10 +112,6 @@ export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
 
       if (error) throw error;
 
-      toast({
-        title: 'Event Updated',
-        description: 'Your event has been successfully updated'
-      });
       onSuccess();
     } catch (error) {
       console.error('Error updating event:', error);
@@ -145,7 +128,7 @@ export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
 
   return (
     <Card className="w-full">
-      <CardHeader className="text-center bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-lg">
+      <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-t-lg">
         <div className="flex justify-between items-center">
           <div></div>
           <CardTitle className="text-2xl">Edit Event</CardTitle>
@@ -249,7 +232,7 @@ export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
             />
           </div>
 
-          {/* Existing Media */}
+          {/* Existing media display and new file upload similar to journal edit */}
           {existingMediaUrls.length > 0 && (
             <div className="space-y-2">
               <Label>Current Files</Label>
@@ -275,7 +258,7 @@ export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
           )}
 
           <div className="space-y-2">
-            <Label>Attach Files</Label>
+            <Label>Add New Files</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
               <input
                 type="file"
@@ -326,7 +309,7 @@ export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
             <Button
               type="submit"
               disabled={loading || uploading}
-              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             >
               {uploading ? 'Uploading...' : loading ? 'Updating...' : 'Update Event'}
             </Button>
