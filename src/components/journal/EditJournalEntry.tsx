@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -110,8 +111,8 @@ export function EditJournalEntry({ entry, onSuccess, onCancel }: EditJournalEntr
           entry_date: entryDate,
           entry_time: entryTime || null,
           media_urls: allMediaUrls.length > 0 ? allMediaUrls : null
-        })
-        .eq('id', entry.id);
+        } as any)
+        .eq('id', entry.id as any);
 
       if (error) throw error;
 

@@ -41,7 +41,7 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
       const { error } = await supabase
         .from('events')
         .delete()
-        .eq('id', event.id);
+        .eq('id', event.id as any);
 
       if (error) throw error;
 
@@ -68,8 +68,8 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
     try {
       const { error } = await supabase
         .from('events')
-        .update({ status: newStatus })
-        .eq('id', event.id);
+        .update({ status: newStatus } as any)
+        .eq('id', event.id as any);
 
       if (error) throw error;
 

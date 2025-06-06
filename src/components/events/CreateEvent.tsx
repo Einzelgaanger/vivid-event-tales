@@ -99,7 +99,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
           urgency: urgency || null,
           additional_notes: additionalNotes.trim() || null,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null
-        });
+        } as any);
 
       if (error) throw error;
 

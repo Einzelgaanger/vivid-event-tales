@@ -107,8 +107,8 @@ export function EditEvent({ event, onSuccess, onCancel }: EditEventProps) {
           urgency: urgency || null,
           additional_notes: additionalNotes.trim() || null,
           media_urls: allMediaUrls.length > 0 ? allMediaUrls : null
-        })
-        .eq('id', event.id);
+        } as any)
+        .eq('id', event.id as any);
 
       if (error) throw error;
 

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -102,7 +103,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
           entry_date: entryDate,
           entry_time: entryTime || null,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null
-        });
+        } as any);
 
       if (error) throw error;
 
