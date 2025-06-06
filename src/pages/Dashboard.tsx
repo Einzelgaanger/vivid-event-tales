@@ -10,6 +10,7 @@ import { SettingsPage } from '@/components/settings/SettingsPage';
 import { ProfilePage } from '@/components/profile/ProfilePage';
 import { PinVerification } from '@/components/auth/PinVerification';
 import { Navigation } from '@/components/dashboard/Navigation';
+import { StreakCounter } from '@/components/gamification/StreakCounter';
 import { BookOpen, Calendar, FileText, Settings, User, Vault } from 'lucide-react';
 
 export default function Dashboard() {
@@ -49,9 +50,12 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <Vault className="w-16 h-16 mx-auto mb-4 text-blue-600 animate-pulse" />
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading MemVault...</p>
+          <div className="w-24 h-24 bg-gradient-to-r from-blue-600 to-black rounded-full flex items-center justify-center mb-6 mx-auto animate-pulse">
+            <Vault className="w-12 h-12 text-white" />
+          </div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-xl text-gray-600 font-medium">Loading MemVault...</p>
+          <p className="text-gray-500">🔐 Securing your memories...</p>
         </div>
       </div>
     );
@@ -66,48 +70,53 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-black/5">
       <Navigation />
       
-      <main className="pt-16">
+      <main className="pt-20 pb-8">
+        {/* Streak Counter */}
+        <div className="max-w-7xl mx-auto px-4 mb-6">
+          <StreakCounter />
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="bg-white shadow-sm border-b border-gray-200">
+          <div className="bg-white/80 backdrop-blur shadow-lg border-b border-blue-100">
             <div className="max-w-7xl mx-auto px-4">
-              <TabsList className="grid w-full grid-cols-5 bg-transparent h-16">
+              <TabsList className="grid w-full grid-cols-5 bg-transparent h-20 gap-2">
                 <TabsTrigger 
                   value="journal" 
-                  className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700"
+                  className="flex flex-col items-center gap-2 p-4 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700 hover:bg-blue-50 transition-all duration-200"
                 >
-                  <BookOpen className="w-4 h-4" />
-                  Journal
+                  <BookOpen className="w-6 h-6" />
+                  <span className="text-sm font-medium">📖 Journal</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="events" 
-                  className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700"
+                  className="flex flex-col items-center gap-2 p-4 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 hover:bg-purple-50 transition-all duration-200"
                 >
-                  <Calendar className="w-4 h-4" />
-                  Events
+                  <Calendar className="w-6 h-6" />
+                  <span className="text-sm font-medium">📅 Events</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="notes" 
-                  className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700"
+                  className="flex flex-col items-center gap-2 p-4 data-[state=active]:bg-green-100 data-[state=active]:text-green-700 hover:bg-green-50 transition-all duration-200"
                 >
-                  <FileText className="w-4 h-4" />
-                  Notes
+                  <FileText className="w-6 h-6" />
+                  <span className="text-sm font-medium">📝 Notes</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="profile" 
-                  className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700"
+                  className="flex flex-col items-center gap-2 p-4 data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700 hover:bg-orange-50 transition-all duration-200"
                 >
-                  <User className="w-4 h-4" />
-                  Profile
+                  <User className="w-6 h-6" />
+                  <span className="text-sm font-medium">👤 Profile</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="settings" 
-                  className="flex items-center gap-2 data-[state=active]:bg-blue-100 data-[state=active]:text-blue-700"
+                  className="flex flex-col items-center gap-2 p-4 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700 hover:bg-gray-50 transition-all duration-200"
                 >
-                  <Settings className="w-4 h-4" />
-                  Settings
+                  <Settings className="w-6 h-6" />
+                  <span className="text-sm font-medium">⚙️ Settings</span>
                 </TabsTrigger>
               </TabsList>
             </div>
