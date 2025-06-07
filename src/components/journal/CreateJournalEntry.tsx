@@ -161,7 +161,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl shadow-2xl border-0 bg-white/95 backdrop-blur">
         <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"50\" cy=\"50\" r=\"1\" fill=\"white\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>')] opacity-30"></div>
+          <div className="absolute inset-0 bg-black/10"></div>
           <div className="relative flex justify-between items-center">
             <div></div>
             <CardTitle className="text-3xl flex items-center gap-3">
