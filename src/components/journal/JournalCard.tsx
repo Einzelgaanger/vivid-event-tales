@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { EditJournalEntry } from './EditJournalEntry';
+import { JournalViewer } from './JournalViewer';
 import type { Database } from '@/integrations/supabase/types';
 
 type JournalEntry = Database['public']['Tables']['journal_entries']['Row'];
@@ -34,6 +35,7 @@ interface JournalCardProps {
 
 export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
   const [showEdit, setShowEdit] = useState(false);
+  const [showViewer, setShowViewer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -153,9 +155,13 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
     setIsPlaying(!isPlaying);
   };
 
+  const openViewer = () => {
+    setShowViewer(true);
+  };
+
   return (
     <>
-      <Card className="hover:shadow-lg transition-all duration-200 overflow-hidden">
+      <Card className="hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer" onClick={openViewer}>
         <CardHeader className="pb-3">
           <div className="flex justify-between items-start">
             <CardTitle className="text-lg font-semibold text-gray-800 line-clamp-2">
@@ -194,19 +200,22 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
                   <video
                     src={mediaUrls[currentMediaIndex]}
                     className="w-full h-full object-cover"
-                    controls
                     autoPlay
                     muted
+                    loop
                   />
                 )}
                 
                 {/* Media Controls */}
                 {mediaUrls.length > 1 && (
-                  <div className="absolute inset-0 flex items-center justify-between p-2">
+                  <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={prevMedia}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        prevMedia();
+                      }}
                       className="bg-black/50 text-white hover:bg-black/70"
                     >
                       <ChevronLeft className="w-4 h-4" />
@@ -214,24 +223,13 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={nextMedia}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        nextMedia();
+                      }}
                       className="bg-black/50 text-white hover:bg-black/70"
                     >
                       <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
-                
-                {/* Slideshow Controls */}
-                {mediaUrls.length > 1 && (
-                  <div className="absolute bottom-2 left-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={toggleSlideshow}
-                      className="bg-black/50 text-white hover:bg-black/70"
-                    >
-                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                     </Button>
                   </div>
                 )}
@@ -243,30 +241,19 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
                   </div>
                 )}
               </div>
-
-              {/* Download All Media */}
-              <div className="flex flex-wrap gap-2 mt-2">
-                {mediaUrls.map((url, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => downloadFile(url, `memory-media-${index + 1}`)}
-                    className="text-xs"
-                  >
-                    <Download className="w-3 h-3 mr-1" />
-                    {isImage(url) && <Image className="w-3 h-3 mr-1" />}
-                    {isVideo(url) && <Video className="w-3 h-3 mr-1" />}
-                    {!isImage(url) && !isVideo(url) && <FileText className="w-3 h-3 mr-1" />}
-                    {index + 1}
-                  </Button>
-                ))}
-              </div>
             </div>
           )}
 
           {entry.description && (
             <p className="text-gray-600 text-sm line-clamp-3">{entry.description}</p>
+          )}
+
+          {/* Spotify Track */}
+          {entry.spotify_track_name && (
+            <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-2 rounded">
+              <span>🎵</span>
+              <span className="truncate">{entry.spotify_track_name}</span>
+            </div>
           )}
 
           <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -282,7 +269,7 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
             )}
           </div>
 
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
             <Button
               variant="outline"
               size="sm"
@@ -306,6 +293,7 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
         </CardContent>
       </Card>
 
+      {/* Edit Modal */}
       {showEdit && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -313,6 +301,34 @@ export function JournalCard({ entry, onDelete, onUpdate }: JournalCardProps) {
               entry={entry}
               onSuccess={handleEditSuccess}
               onCancel={() => setShowEdit(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Journal Viewer Modal */}
+      {showViewer && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="relative max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowViewer(false)}
+              className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white text-black"
+            >
+              ✕
+            </Button>
+            <JournalViewer 
+              entry={{
+                title: entry.title,
+                description: entry.description,
+                media_urls: entry.media_urls,
+                audio_urls: entry.audio_urls,
+                spotify_preview_url: entry.spotify_preview_url,
+                spotify_track_name: entry.spotify_track_name,
+                spotify_artist: entry.spotify_artist
+              }}
+              autoPlayMusic={true}
             />
           </div>
         </div>

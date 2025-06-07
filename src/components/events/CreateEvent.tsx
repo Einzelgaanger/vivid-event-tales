@@ -108,7 +108,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
           additional_notes: additionalNotes.trim() || null,
           media_urls: mediaUrls.length > 0 ? mediaUrls : null,
           reminder_enabled: reminders.length > 0
-        } as any)
+        })
         .select()
         .single();
 
@@ -120,7 +120,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
           supabase.from('event_reminders').insert({
             event_id: eventData.id,
             reminder_datetime: reminder.datetime
-          } as any)
+          })
         );
         
         await Promise.all(reminderPromises);
@@ -149,7 +149,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl shadow-2xl border-0 bg-white/95 backdrop-blur">
         <CardHeader className="text-center bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-t-lg relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>')] opacity-30"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"50\" cy=\"50\" r=\"1\" fill=\"white\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>')] opacity-30"></div>
           <div className="relative flex justify-between items-center">
             <div></div>
             <CardTitle className="text-3xl flex items-center gap-3">
@@ -263,7 +263,6 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
               />
             </div>
 
-            {/* Event Reminders */}
             <EventReminders
               reminders={reminders}
               onRemindersChange={setReminders}
