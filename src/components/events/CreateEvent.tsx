@@ -98,7 +98,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
       const { data: eventData, error: eventError } = await supabase
         .from('events')
         .insert({
-          user_id: user?.id,
+          user_id: user?.id as string,
           title: title.trim(),
           description: description.trim() || null,
           venue: venue.trim() || null,

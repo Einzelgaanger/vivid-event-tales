@@ -38,16 +38,16 @@ export function SettingsPage() {
         .from('user_settings')
         .select('*')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
         setPinEnabled(data.pin_enabled || false);
         setPinCode(data.pin_code || '');
-        setReminderEnabled(data.reminder_enabled || false);
-        setReminderTime(data.reminder_time || '09:00');
-        setReminderFrequency(data.reminder_frequency || 'daily');
+        setReminderEnabled(data.notification_enabled || false);
+        setReminderTime(data.notification_time || '09:00');
+        setReminderFrequency(data.notification_frequency || 'daily');
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -78,12 +78,12 @@ export function SettingsPage() {
       const { error } = await supabase
         .from('user_settings')
         .upsert({
-          user_id: user?.id,
+          user_id: user?.id as string,
           pin_enabled: pinEnabled,
           pin_code: pinEnabled ? pinCode : null,
-          reminder_enabled: reminderEnabled,
-          reminder_time: reminderTime,
-          reminder_frequency: reminderFrequency,
+          notification_enabled: reminderEnabled,
+          notification_time: reminderTime,
+          notification_frequency: reminderFrequency,
           updated_at: new Date().toISOString()
         });
 

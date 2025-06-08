@@ -9,6 +9,38 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      event_reminders: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          reminder_datetime: string
+          sent: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          reminder_datetime: string
+          sent?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          reminder_datetime?: string
+          sent?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reminders_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           additional_notes: string | null
@@ -18,7 +50,9 @@ export type Database = {
           event_time: string | null
           id: string
           media_urls: string[] | null
+          reminder_enabled: boolean | null
           status: string | null
+          tags: string[] | null
           title: string
           updated_at: string
           urgency: string | null
@@ -33,7 +67,9 @@ export type Database = {
           event_time?: string | null
           id?: string
           media_urls?: string[] | null
+          reminder_enabled?: boolean | null
           status?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string
           urgency?: string | null
@@ -48,7 +84,9 @@ export type Database = {
           event_time?: string | null
           id?: string
           media_urls?: string[] | null
+          reminder_enabled?: boolean | null
           status?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string
           urgency?: string | null
@@ -59,6 +97,7 @@ export type Database = {
       }
       journal_entries: {
         Row: {
+          audio_urls: string[] | null
           created_at: string
           description: string | null
           entry_date: string
@@ -67,11 +106,17 @@ export type Database = {
           media_urls: string[] | null
           mood: string | null
           rating: number | null
+          spotify_artist: string | null
+          spotify_preview_url: string | null
+          spotify_track_id: string | null
+          spotify_track_name: string | null
+          tags: string[] | null
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          audio_urls?: string[] | null
           created_at?: string
           description?: string | null
           entry_date: string
@@ -80,11 +125,17 @@ export type Database = {
           media_urls?: string[] | null
           mood?: string | null
           rating?: number | null
+          spotify_artist?: string | null
+          spotify_preview_url?: string | null
+          spotify_track_id?: string | null
+          spotify_track_name?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          audio_urls?: string[] | null
           created_at?: string
           description?: string | null
           entry_date?: string
@@ -93,6 +144,41 @@ export type Database = {
           media_urls?: string[] | null
           mood?: string | null
           rating?: number | null
+          spotify_artist?: string | null
+          spotify_preview_url?: string | null
+          spotify_track_id?: string | null
+          spotify_track_name?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          tags?: string[] | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -123,6 +209,138 @@ export type Database = {
           id?: string
           updated_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      shared_memories: {
+        Row: {
+          created_at: string
+          id: string
+          memory_id: string
+          memory_type: string
+          message: string | null
+          owner_id: string
+          shared_with_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          memory_id: string
+          memory_type: string
+          message?: string | null
+          owner_id: string
+          shared_with_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          memory_id?: string
+          memory_type?: string
+          message?: string | null
+          owner_id?: string
+          shared_with_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      streaks: {
+        Row: {
+          created_at: string
+          current_streak: number | null
+          id: string
+          last_journal_date: string | null
+          longest_streak: number | null
+          total_points: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number | null
+          id?: string
+          last_journal_date?: string | null
+          longest_streak?: number | null
+          total_points?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number | null
+          id?: string
+          last_journal_date?: string | null
+          longest_streak?: number | null
+          total_points?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          id: string
+          notification_enabled: boolean | null
+          notification_frequency: string | null
+          notification_time: string | null
+          pin_code: string | null
+          pin_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notification_enabled?: boolean | null
+          notification_frequency?: string | null
+          notification_time?: string | null
+          pin_code?: string | null
+          pin_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notification_enabled?: boolean | null
+          notification_frequency?: string | null
+          notification_time?: string | null
+          pin_code?: string | null
+          pin_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

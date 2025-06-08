@@ -31,7 +31,7 @@ export function PinVerification({ onVerified }: PinVerificationProps) {
         .from('user_settings')
         .select('pin_enabled, pin_code')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
 
@@ -65,7 +65,7 @@ export function PinVerification({ onVerified }: PinVerificationProps) {
         .from('user_settings')
         .select('pin_code')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
