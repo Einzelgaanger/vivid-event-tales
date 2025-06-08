@@ -24,7 +24,7 @@ export function StreakCounter() {
       const { data } = await supabase
         .from('streaks')
         .select('*')
-        .eq('user_id', user?.id as string)
+        .eq('user_id', user?.id!)
         .maybeSingle();
       
       if (data) {
@@ -64,14 +64,14 @@ export function StreakCounter() {
         {(streak.current_streak || 0) > 0 && (
           <Badge variant="secondary" className="w-full justify-center">
             <Star className="w-4 h-4 mr-1" />
-            Keep it up! 🔥
+            Keep it up!
           </Badge>
         )}
         
         {(streak.current_streak || 0) >= 7 && (
           <Badge variant="secondary" className="w-full justify-center bg-yellow-500">
             <Trophy className="w-4 h-4 mr-1" />
-            Week Warrior! 🏆
+            Week Warrior!
           </Badge>
         )}
       </CardContent>

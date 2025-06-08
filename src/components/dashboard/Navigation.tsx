@@ -1,150 +1,143 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { Heart, BookOpen, Calendar, User, LogOut, Menu, X } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { 
+  FileText, 
+  Calendar, 
+  BookOpen, 
+  User,
+  Menu,
+  X
+} from 'lucide-react';
 
 interface NavigationProps {
-  onPageChange: (page: 'journal' | 'events' | 'profile') => void;
-  currentPage: 'journal' | 'events' | 'profile';
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
-export function Navigation({ onPageChange, currentPage }: NavigationProps) {
-  const { signOut, user } = useAuth();
+export function Navigation({ activeTab, onTabChange }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const location = useLocation();
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
 
   const navItems = [
-    { key: 'journal' as const, label: 'Journal', icon: BookOpen, emoji: '📖' },
-    { key: 'events' as const, label: 'Events', icon: Calendar, emoji: '📅' },
-    { key: 'profile' as const, label: 'Profile', icon: User, emoji: '👤' }
+    { id: 'journal', label: 'Journal', icon: BookOpen },
+    { id: 'events', label: 'Events', icon: Calendar },
+    { id: 'notes', label: 'Notes', icon: FileText },
+    { id: 'profile', label: 'Profile', icon: User },
   ];
+
+  const handleTabChange = (tab: string) => {
+    onTabChange(tab);
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center justify-between p-4 bg-white/90 backdrop-blur-sm border-b border-gray-200">
-        <div className="flex items-center space-x-2">
-          <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full">
-            <Heart className="w-6 h-6 text-white" />
+      <nav className="hidden md:flex bg-white shadow-lg border-b sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 w-full">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                MemVault
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.id}
+                    variant={activeTab === item.id ? "default" : "ghost"}
+                    onClick={() => handleTabChange(item.id)}
+                    className={`flex items-center gap-2 px-4 py-2 ${
+                      activeTab === item.id 
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                        : 'text-gray-600 hover:text-blue-600'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span>{item.label}</span>
+                  </Button>
+                );
+              })}
+            </div>
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            MemoryVault
-          </h1>
-        </div>
-
-        <div className="flex items-center space-x-6">
-          {navItems.map(({ key, label, icon: Icon, emoji }) => (
-            <button
-              key={key}
-              onClick={() => onPageChange(key)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full transition-all ${
-                currentPage === key
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                  : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
-              }`}
-            >
-              <span className="text-lg">{emoji}</span>
-              <Icon className="w-4 h-4" />
-              <span className="font-medium">{label}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">
-            Welcome, {user?.user_metadata?.full_name || user?.email} ✨
-          </span>
-          <Button
-            variant="outline"
-            onClick={handleSignOut}
-            className="flex items-center space-x-2"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
-          </Button>
         </div>
       </nav>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden">
-        <div className="flex items-center justify-between p-4 bg-white/90 backdrop-blur-sm border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full">
-              <Heart className="w-5 h-5 text-white" />
+      <div className="md:hidden">
+        {/* Top Bar */}
+        <div className="bg-white shadow-lg border-b sticky top-0 z-50">
+          <div className="flex justify-between items-center h-16 px-4">
+            <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              MemVault
             </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              MemoryVault
-            </h1>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </Button>
           </div>
-
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 text-gray-600 hover:text-purple-600"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div className="bg-white/95 backdrop-blur-sm border-b border-gray-200 p-4">
-            <div className="space-y-3">
-              {navItems.map(({ key, label, icon: Icon, emoji }) => (
-                <button
-                  key={key}
-                  onClick={() => {
-                    onPageChange(key);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                    currentPage === key
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsMobileMenuOpen(false)} />
+        )}
+
+        {/* Mobile Menu */}
+        <div className={`fixed top-16 left-0 right-0 bg-white shadow-lg z-50 transform transition-transform duration-200 ${
+          isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
+        }`}>
+          <div className="grid grid-cols-2 gap-2 p-4">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Button
+                  key={item.id}
+                  variant={activeTab === item.id ? "default" : "outline"}
+                  onClick={() => handleTabChange(item.id)}
+                  className={`flex flex-col items-center gap-2 h-20 ${
+                    activeTab === item.id 
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                      : 'text-gray-600 hover:text-blue-600'
                   }`}
                 >
-                  <span className="text-xl">{emoji}</span>
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{label}</span>
-                </button>
-              ))}
-              
-              <hr className="my-3" />
-              
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 hover:text-red-600 hover:bg-red-50 transition-all"
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="font-medium">Sign Out</span>
-              </button>
-            </div>
+                  <Icon className="w-6 h-6" />
+                  <span className="text-sm">{item.label}</span>
+                </Button>
+              );
+            })}
           </div>
-        )}
-      </nav>
+        </div>
 
-      {/* Bottom Tab Bar for Mobile */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-2">
-        <div className="flex justify-around">
-          {navItems.map(({ key, label, icon: Icon, emoji }) => (
-            <button
-              key={key}
-              onClick={() => onPageChange(key)}
-              className={`flex flex-col items-center space-y-1 p-3 rounded-lg transition-all ${
-                currentPage === key
-                  ? 'text-purple-600 bg-purple-50'
-                  : 'text-gray-500 hover:text-purple-600'
-              }`}
-            >
-              <span className="text-lg">{emoji}</span>
-              <span className="text-xs font-medium">{label}</span>
-            </button>
-          ))}
+        {/* Bottom Navigation Bar */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40">
+          <div className="grid grid-cols-4 gap-1 p-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Button
+                  key={item.id}
+                  variant="ghost"
+                  onClick={() => handleTabChange(item.id)}
+                  className={`flex flex-col items-center gap-1 h-16 ${
+                    activeTab === item.id 
+                      ? 'text-blue-600 bg-blue-50' 
+                      : 'text-gray-600'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-xs">{item.label}</span>
+                </Button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </>

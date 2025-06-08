@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, Upload, Calendar, MapPin, Clock } from 'lucide-react';
 import { EventReminders } from './EventReminders';
+import type { Database } from '@/integrations/supabase/types';
 
 interface CreateEventProps {
   onSuccess: () => void;
@@ -39,9 +40,9 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
   const { toast } = useToast();
 
   const urgencyOptions = [
-    { value: 'low', label: '🟢 Low Priority', color: 'text-green-600' },
-    { value: 'medium', label: '🟡 Medium Priority', color: 'text-yellow-600' },
-    { value: 'high', label: '🔴 High Priority', color: 'text-red-600' },
+    { value: 'low', label: 'Low Priority', color: 'text-green-600' },
+    { value: 'medium', label: 'Medium Priority', color: 'text-yellow-600' },
+    { value: 'high', label: 'High Priority', color: 'text-red-600' },
   ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,39 +96,41 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
         setUploading(false);
       }
 
-      const { data: eventData, error: eventError } = await supabase
+      const eventData: Database['public']['Tables']['events']['Insert'] = {
+        user_id: user?.id!,
+        title: title.trim(),
+        description: description.trim() || null,
+        venue: venue.trim() || null,
+        event_date: eventDate,
+        event_time: eventTime || null,
+        urgency: urgency,
+        additional_notes: additionalNotes.trim() || null,
+        media_urls: mediaUrls.length > 0 ? mediaUrls : null,
+        reminder_enabled: reminders.length > 0
+      };
+
+      const { data: eventResult, error: eventError } = await supabase
         .from('events')
-        .insert({
-          user_id: user?.id as string,
-          title: title.trim(),
-          description: description.trim() || null,
-          venue: venue.trim() || null,
-          event_date: eventDate,
-          event_time: eventTime || null,
-          urgency: urgency,
-          additional_notes: additionalNotes.trim() || null,
-          media_urls: mediaUrls.length > 0 ? mediaUrls : null,
-          reminder_enabled: reminders.length > 0
-        })
+        .insert(eventData)
         .select()
         .single();
 
       if (eventError) throw eventError;
 
-      // Create reminders
-      if (reminders.length > 0 && eventData) {
-        const reminderPromises = reminders.map(reminder => 
-          supabase.from('event_reminders').insert({
-            event_id: eventData.id,
+      if (reminders.length > 0 && eventResult) {
+        const reminderPromises = reminders.map(reminder => {
+          const reminderData: Database['public']['Tables']['event_reminders']['Insert'] = {
+            event_id: eventResult.id,
             reminder_datetime: reminder.datetime
-          })
-        );
+          };
+          return supabase.from('event_reminders').insert(reminderData);
+        });
         
         await Promise.all(reminderPromises);
       }
 
       toast({
-        title: '🎉 Event Created!',
+        title: 'Event Created',
         description: 'Your event has been successfully scheduled',
       });
 
@@ -154,7 +157,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
             <div></div>
             <CardTitle className="text-3xl flex items-center gap-3">
               <Calendar className="w-8 h-8" />
-              📅 Create New Event
+              Create New Event
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={onCancel} className="text-white hover:bg-white/20">
               <X className="w-5 h-5" />
@@ -166,7 +169,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <Label htmlFor="title" className="text-lg font-medium">Event Title ✨</Label>
+                <Label htmlFor="title" className="text-lg font-medium">Event Title</Label>
                 <Input
                   id="title"
                   value={title}
@@ -178,7 +181,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
               </div>
               
               <div className="space-y-3">
-                <Label htmlFor="urgency" className="text-lg font-medium">Priority Level 🎯</Label>
+                <Label htmlFor="urgency" className="text-lg font-medium">Priority Level</Label>
                 <Select value={urgency} onValueChange={setUrgency}>
                   <SelectTrigger className="border-blue-200 focus:border-blue-500">
                     <SelectValue placeholder="Select priority" />
@@ -195,7 +198,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="description" className="text-lg font-medium">Event Description 📝</Label>
+              <Label htmlFor="description" className="text-lg font-medium">Event Description</Label>
               <Textarea
                 id="description"
                 value={description}
@@ -208,7 +211,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-3">
-                <Label htmlFor="date" className="text-lg font-medium">📅 Event Date</Label>
+                <Label htmlFor="date" className="text-lg font-medium">Event Date</Label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-3 h-4 w-4 text-purple-400" />
                   <Input
@@ -223,7 +226,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
               </div>
               
               <div className="space-y-3">
-                <Label htmlFor="time" className="text-lg font-medium">🕐 Event Time</Label>
+                <Label htmlFor="time" className="text-lg font-medium">Event Time</Label>
                 <div className="relative">
                   <Clock className="absolute left-3 top-3 h-4 w-4 text-blue-400" />
                   <Input
@@ -237,7 +240,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="venue" className="text-lg font-medium">📍 Location</Label>
+                <Label htmlFor="venue" className="text-lg font-medium">Location</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 h-4 w-4 text-green-400" />
                   <Input
@@ -252,7 +255,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="notes" className="text-lg font-medium">Additional Notes 📋</Label>
+              <Label htmlFor="notes" className="text-lg font-medium">Additional Notes</Label>
               <Textarea
                 id="notes"
                 value={additionalNotes}
@@ -269,7 +272,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
             />
 
             <div className="space-y-3">
-              <Label className="text-lg font-medium">📎 Attach Files</Label>
+              <Label className="text-lg font-medium">Attach Files</Label>
               <div className="border-2 border-dashed border-purple-300 rounded-xl p-6 text-center bg-purple-50/50 hover:bg-purple-100/50 transition-colors">
                 <input
                   type="file"
@@ -322,7 +325,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
                 disabled={loading || uploading}
                 className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                {uploading ? '📤 Uploading...' : loading ? '💫 Creating...' : '🎉 Create Event'}
+                {uploading ? 'Uploading...' : loading ? 'Creating...' : 'Create Event'}
               </Button>
             </div>
           </form>

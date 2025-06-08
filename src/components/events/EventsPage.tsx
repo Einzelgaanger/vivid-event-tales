@@ -31,11 +31,10 @@ export function EventsPage() {
   useEffect(() => {
     const filtered = events.filter(event => 
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.venue?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.urgency?.toLowerCase().includes(searchTerm.toLowerCase())
+      (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (event.venue && event.venue.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (event.urgency && event.urgency.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-    // Sort by date (upcoming first)
     filtered.sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
     setFilteredEvents(filtered);
   }, [events, searchTerm]);
@@ -47,11 +46,11 @@ export function EventsPage() {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .eq('user_id', user.id as string)
+        .eq('user_id', user.id)
         .order('event_date', { ascending: true });
 
       if (error) throw error;
-      setEvents(data as Event[] || []);
+      setEvents(data || []);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
@@ -96,18 +95,18 @@ export function EventsPage() {
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-6">
       {/* Header */}
-      <div className="text-center py-8">
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+      <div className="text-center py-4 md:py-8">
+        <h1 className="text-2xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
           Event Manager
         </h1>
-        <p className="text-gray-600 text-lg">
+        <p className="text-gray-600 text-sm md:text-lg">
           Organize and manage your events with precision
         </p>
       </div>
 
       {/* Search and Create */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div className="relative flex-1 max-w-md">
+        <div className="relative flex-1 max-w-md w-full">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search events..."
@@ -119,10 +118,11 @@ export function EventsPage() {
         
         <Button
           onClick={() => setShowCreateForm(true)}
-          className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg transform transition hover:scale-105"
+          className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg transform transition hover:scale-105 w-full md:w-auto"
         >
           <Plus className="w-5 h-5 mr-2" />
-          New Event
+          <span className="hidden sm:inline">New Event</span>
+          <span className="sm:hidden">New</span>
         </Button>
       </div>
 
@@ -139,48 +139,48 @@ export function EventsPage() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-4 text-center">
-            <Calendar className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-            <p className="text-2xl font-bold text-blue-800">{events.length}</p>
-            <p className="text-blue-600">Total Events</p>
+          <CardContent className="p-3 md:p-4 text-center">
+            <Calendar className="w-6 md:w-8 h-6 md:h-8 mx-auto mb-2 text-blue-600" />
+            <p className="text-lg md:text-2xl font-bold text-blue-800">{events.length}</p>
+            <p className="text-xs md:text-sm text-blue-600">Total</p>
           </CardContent>
         </Card>
         
         <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardContent className="p-4 text-center">
-            <Clock className="w-8 h-8 mx-auto mb-2 text-orange-600" />
-            <p className="text-2xl font-bold text-orange-800">{stats.pending}</p>
-            <p className="text-orange-600">Pending</p>
+          <CardContent className="p-3 md:p-4 text-center">
+            <Clock className="w-6 md:w-8 h-6 md:h-8 mx-auto mb-2 text-orange-600" />
+            <p className="text-lg md:text-2xl font-bold text-orange-800">{stats.pending}</p>
+            <p className="text-xs md:text-sm text-orange-600">Pending</p>
           </CardContent>
         </Card>
         
         <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-4 text-center">
-            <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-600" />
-            <p className="text-2xl font-bold text-green-800">{stats.completed}</p>
-            <p className="text-green-600">Completed</p>
+          <CardContent className="p-3 md:p-4 text-center">
+            <CheckCircle className="w-6 md:w-8 h-6 md:h-8 mx-auto mb-2 text-green-600" />
+            <p className="text-lg md:text-2xl font-bold text-green-800">{stats.completed}</p>
+            <p className="text-xs md:text-sm text-green-600">Done</p>
           </CardContent>
         </Card>
         
         <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-          <CardContent className="p-4 text-center">
-            <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-600" />
-            <p className="text-2xl font-bold text-red-800">{stats.overdue}</p>
-            <p className="text-red-600">Overdue</p>
+          <CardContent className="p-3 md:p-4 text-center">
+            <AlertCircle className="w-6 md:w-8 h-6 md:h-8 mx-auto mb-2 text-red-600" />
+            <p className="text-lg md:text-2xl font-bold text-red-800">{stats.overdue}</p>
+            <p className="text-xs md:text-sm text-red-600">Overdue</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Events Grid */}
       {filteredEvents.length === 0 ? (
-        <Card className="p-12 text-center bg-white/50 border-dashed border-2 border-gray-300">
-          <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+        <Card className="p-6 md:p-12 text-center bg-white/50 border-dashed border-2 border-gray-300">
+          <Calendar className="w-12 md:w-16 h-12 md:h-16 mx-auto mb-4 text-gray-400" />
+          <h3 className="text-lg md:text-xl font-semibold text-gray-600 mb-2">
             {searchTerm ? 'No events found' : 'Start Planning Your Events'}
           </h3>
-          <p className="text-gray-500 mb-4">
+          <p className="text-sm md:text-base text-gray-500 mb-4">
             {searchTerm 
               ? 'Try adjusting your search terms'
               : 'Create your first event to begin organizing your schedule'
@@ -196,7 +196,7 @@ export function EventsPage() {
           )}
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {filteredEvents.map((event) => (
             <EventCard
               key={event.id}
