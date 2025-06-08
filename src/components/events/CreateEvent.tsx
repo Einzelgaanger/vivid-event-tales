@@ -11,7 +11,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, Upload, Calendar, MapPin, Clock } from 'lucide-react';
 import { EventReminders } from './EventReminders';
-import type { Database } from '@/integrations/supabase/types';
 
 interface CreateEventProps {
   onSuccess: () => void;
@@ -96,7 +95,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
         setUploading(false);
       }
 
-      const eventData: Database['public']['Tables']['events']['Insert'] = {
+      const eventData = {
         user_id: user?.id!,
         title: title.trim(),
         description: description.trim() || null,
@@ -107,7 +106,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
         additional_notes: additionalNotes.trim() || null,
         media_urls: mediaUrls.length > 0 ? mediaUrls : null,
         reminder_enabled: reminders.length > 0
-      };
+      } as any;
 
       const { data: eventResult, error: eventError } = await supabase
         .from('events')
@@ -119,10 +118,10 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
       if (reminders.length > 0 && eventResult) {
         const reminderPromises = reminders.map(reminder => {
-          const reminderData: Database['public']['Tables']['event_reminders']['Insert'] = {
+          const reminderData = {
             event_id: eventResult.id,
             reminder_datetime: reminder.datetime
-          };
+          } as any;
           return supabase.from('event_reminders').insert(reminderData);
         });
         

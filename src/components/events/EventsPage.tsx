@@ -9,9 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Calendar, MapPin, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { CreateEvent } from './CreateEvent';
 import { EventCard } from './EventCard';
-import type { Database } from '@/integrations/supabase/types';
 
-type Event = Database['public']['Tables']['events']['Row'];
+type Event = any;
 
 export function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -50,7 +49,7 @@ export function EventsPage() {
         .order('event_date', { ascending: true });
 
       if (error) throw error;
-      setEvents(data || []);
+      setEvents(data as any || []);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({

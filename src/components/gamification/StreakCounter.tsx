@@ -5,9 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Flame, Trophy, Star } from 'lucide-react';
-import type { Database } from '@/integrations/supabase/types';
 
-type Streak = Database['public']['Tables']['streaks']['Row'];
+type Streak = any;
 
 export function StreakCounter() {
   const [streak, setStreak] = useState<Streak | null>(null);
