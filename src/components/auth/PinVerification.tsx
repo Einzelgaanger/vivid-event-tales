@@ -30,12 +30,12 @@ export function PinVerification({ onVerified }: PinVerificationProps) {
       const { data, error } = await supabase
         .from('user_settings')
         .select('pin_enabled, pin_code')
-        .eq('user_id', user.id)
+        .eq('user_id', user.id as string)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
 
-      if (data?.pin_enabled) {
+      if (data && data.pin_enabled) {
         setHasPinEnabled(true);
       } else {
         // No PIN enabled, proceed
@@ -64,12 +64,12 @@ export function PinVerification({ onVerified }: PinVerificationProps) {
       const { data, error } = await supabase
         .from('user_settings')
         .select('pin_code')
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id as string)
         .maybeSingle();
 
       if (error) throw error;
 
-      if (data?.pin_code === pin) {
+      if (data && data.pin_code === pin) {
         localStorage.setItem('lastActivity', Date.now().toString());
         onVerified();
       } else {

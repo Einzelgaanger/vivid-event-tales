@@ -5,13 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Flame, Trophy, Star } from 'lucide-react';
+import type { Database } from '@/integrations/supabase/types';
 
-interface Streak {
-  current_streak: number;
-  longest_streak: number;
-  total_points: number;
-  last_journal_date: string;
-}
+type Streak = Database['public']['Tables']['streaks']['Row'];
 
 export function StreakCounter() {
   const [streak, setStreak] = useState<Streak | null>(null);
@@ -28,7 +24,7 @@ export function StreakCounter() {
       const { data } = await supabase
         .from('streaks')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id as string)
         .maybeSingle();
       
       if (data) {
@@ -52,27 +48,27 @@ export function StreakCounter() {
       <CardContent className="space-y-3">
         <div className="flex justify-between items-center">
           <div className="text-center">
-            <div className="text-2xl font-bold">{streak.current_streak}</div>
+            <div className="text-2xl font-bold">{streak.current_streak || 0}</div>
             <div className="text-sm opacity-90">Current</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold">{streak.longest_streak}</div>
+            <div className="text-2xl font-bold">{streak.longest_streak || 0}</div>
             <div className="text-sm opacity-90">Best</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold">{streak.total_points}</div>
+            <div className="text-2xl font-bold">{streak.total_points || 0}</div>
             <div className="text-sm opacity-90">Points</div>
           </div>
         </div>
         
-        {streak.current_streak > 0 && (
+        {(streak.current_streak || 0) > 0 && (
           <Badge variant="secondary" className="w-full justify-center">
             <Star className="w-4 h-4 mr-1" />
             Keep it up! 🔥
           </Badge>
         )}
         
-        {streak.current_streak >= 7 && (
+        {(streak.current_streak || 0) >= 7 && (
           <Badge variant="secondary" className="w-full justify-center bg-yellow-500">
             <Trophy className="w-4 h-4 mr-1" />
             Week Warrior! 🏆
