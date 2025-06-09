@@ -9,8 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Calendar, MapPin, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import { CreateEvent } from './CreateEvent';
 import { EventCard } from './EventCard';
+import type { Database } from '@/integrations/supabase/types';
 
-type Event = any;
+type Event = Database['public']['Tables']['events']['Row'];
 
 export function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);

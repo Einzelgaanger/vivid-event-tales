@@ -120,7 +120,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
       setUploading(false);
 
       const journalData = {
-        user_id: user?.id,
+        user_id: user?.id!,
         title: title.trim() || 'Audio Entry',
         description: description.trim() || null,
         mood: mood || null,
@@ -137,7 +137,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
 
       const { error } = await supabase
         .from('journal_entries')
-        .insert(journalData);
+        .insert([journalData]);
 
       if (error) throw error;
 
@@ -158,6 +158,10 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
       setLoading(false);
       setUploading(false);
     }
+  };
+
+  const handleTrackSelect = (track: SpotifyTrack) => {
+    setSelectedTrack(track);
   };
 
   return (
@@ -236,7 +240,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
             <div className="space-y-3">
               <Label className="text-lg font-medium">Add Background Music</Label>
               <SpotifySelector
-                onTrackSelect={setSelectedTrack}
+                onTrackSelect={handleTrackSelect}
                 selectedTrack={selectedTrack}
                 onRemoveTrack={() => setSelectedTrack(null)}
               />

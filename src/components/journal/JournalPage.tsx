@@ -10,26 +10,9 @@ import { Plus, Search, Calendar, Heart, Star, Smile, Frown, Meh } from 'lucide-r
 import { CreateJournalEntry } from './CreateJournalEntry';
 import { JournalCard } from './JournalCard';
 import { format, parseISO } from 'date-fns';
+import type { Database } from '@/integrations/supabase/types';
 
-interface JournalEntry {
-  id: string;
-  title: string;
-  description: string | null;
-  mood: string | null;
-  rating: number | null;
-  entry_date: string;
-  entry_time: string | null;
-  media_urls: string[] | null;
-  created_at: string;
-  audio_urls: string[] | null;
-  spotify_track_id: string | null;
-  spotify_track_name: string | null;
-  spotify_artist: string | null;
-  spotify_preview_url: string | null;
-  tags: string[] | null;
-  updated_at: string;
-  user_id: string;
-}
+type JournalEntry = Database['public']['Tables']['journal_entries']['Row'];
 
 export function JournalPage() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -60,7 +43,7 @@ export function JournalPage() {
       const { data, error } = await supabase
         .from('journal_entries')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id!)
         .order('entry_date', { ascending: false });
 
       if (error) throw error;
