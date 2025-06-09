@@ -110,22 +110,23 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
       const { data: eventResult, error: eventError } = await supabase
         .from('events')
-        .insert([eventData])
+        .insert(eventData)
         .select()
         .single();
 
       if (eventError) throw eventError;
 
       if (reminders.length > 0 && eventResult) {
-        const reminderPromises = reminders.map(reminder => {
-          const reminderData = {
-            event_id: eventResult.id,
-            reminder_datetime: reminder.datetime
-          };
-          return supabase.from('event_reminders').insert([reminderData]);
-        });
+        const reminderInserts = reminders.map(reminder => ({
+          event_id: eventResult.id,
+          reminder_datetime: reminder.datetime
+        }));
         
-        await Promise.all(reminderPromises);
+        const { error: reminderError } = await supabase
+          .from('event_reminders')
+          .insert(reminderInserts);
+        
+        if (reminderError) throw reminderError;
       }
 
       toast({
