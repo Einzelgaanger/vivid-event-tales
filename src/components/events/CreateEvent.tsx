@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +10,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, Upload, Calendar, MapPin, Clock } from 'lucide-react';
 import { EventReminders } from './EventReminders';
+import type { Database } from '@/integrations/supabase/types';
+
+type EventInsert = Database['public']['Tables']['events']['Insert'];
+type EventReminderInsert = Database['public']['Tables']['event_reminders']['Insert'];
 
 interface CreateEventProps {
   onSuccess: () => void;
@@ -95,14 +98,14 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
         setUploading(false);
       }
 
-      const eventData = {
-        user_id: user?.id!,
+      const eventData: EventInsert = {
+        user_id: user?.id as string,
         title: title.trim(),
         description: description.trim() || null,
         venue: venue.trim() || null,
         event_date: eventDate,
         event_time: eventTime || null,
-        urgency: urgency,
+        urgency: urgency as 'low' | 'medium' | 'high',
         additional_notes: additionalNotes.trim() || null,
         media_urls: mediaUrls.length > 0 ? mediaUrls : null,
         reminder_enabled: reminders.length > 0
@@ -117,7 +120,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
       if (eventError) throw eventError;
 
       if (reminders.length > 0 && eventResult) {
-        const reminderInserts = reminders.map(reminder => ({
+        const reminderInserts: EventReminderInsert[] = reminders.map(reminder => ({
           event_id: eventResult.id,
           reminder_datetime: reminder.datetime
         }));
