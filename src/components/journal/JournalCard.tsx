@@ -23,9 +23,8 @@ import {
 import { format } from 'date-fns';
 import { EditJournalEntry } from './EditJournalEntry';
 import { JournalViewer } from './JournalViewer';
-import type { Database } from '@/integrations/supabase/types';
 
-type JournalEntry = Database['public']['Tables']['journal_entries']['Row'];
+type JournalEntry = any;
 
 interface JournalCardProps {
   entry: JournalEntry;

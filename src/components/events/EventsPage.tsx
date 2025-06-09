@@ -49,7 +49,7 @@ export function EventsPage() {
         .order('event_date', { ascending: true });
 
       if (error) throw error;
-      setEvents(data as any || []);
+      setEvents(data || []);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({

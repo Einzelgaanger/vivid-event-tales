@@ -106,7 +106,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
         additional_notes: additionalNotes.trim() || null,
         media_urls: mediaUrls.length > 0 ? mediaUrls : null,
         reminder_enabled: reminders.length > 0
-      } as any;
+      };
 
       const { data: eventResult, error: eventError } = await supabase
         .from('events')
@@ -116,12 +116,12 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
       if (eventError) throw eventError;
 
-      if (reminders.length > 0 && eventResult) {
+      if (reminders.length > 0 && eventResult && 'id' in eventResult) {
         const reminderPromises = reminders.map(reminder => {
           const reminderData = {
             event_id: eventResult.id,
             reminder_datetime: reminder.datetime
-          } as any;
+          };
           return supabase.from('event_reminders').insert(reminderData);
         });
         

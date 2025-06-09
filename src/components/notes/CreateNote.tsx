@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, FileText } from 'lucide-react';
-import type { Database } from '@/integrations/supabase/types';
 
 interface CreateNoteProps {
   onSuccess: () => void;
@@ -37,7 +36,7 @@ export function CreateNote({ onSuccess, onCancel }: CreateNoteProps) {
 
     setLoading(true);
     try {
-      const noteData: Database['public']['Tables']['notes']['Insert'] = {
+      const noteData = {
         user_id: user.id,
         title: title.trim(),
         description: content.trim() || null

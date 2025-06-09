@@ -23,6 +23,7 @@ interface SpotifyTrack {
   name: string;
   artists: { name: string }[];
   preview_url: string | null;
+  album: { name: string; images: { url: string }[] };
 }
 
 export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryProps) {
@@ -42,14 +43,14 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
   const { toast } = useToast();
 
   const moodOptions = [
-    { value: 'happy', label: '😊 Happy', emoji: '😊' },
-    { value: 'sad', label: '😢 Sad', emoji: '😢' },
-    { value: 'excited', label: '🤩 Excited', emoji: '🤩' },
-    { value: 'peaceful', label: '😌 Peaceful', emoji: '😌' },
-    { value: 'anxious', label: '😰 Anxious', emoji: '😰' },
-    { value: 'grateful', label: '🙏 Grateful', emoji: '🙏' },
-    { value: 'tired', label: '😴 Tired', emoji: '😴' },
-    { value: 'angry', label: '😠 Angry', emoji: '😠' },
+    { value: 'happy', label: 'Happy', emoji: '😊' },
+    { value: 'sad', label: 'Sad', emoji: '😢' },
+    { value: 'excited', label: 'Excited', emoji: '🤩' },
+    { value: 'peaceful', label: 'Peaceful', emoji: '😌' },
+    { value: 'anxious', label: 'Anxious', emoji: '😰' },
+    { value: 'grateful', label: 'Grateful', emoji: '🙏' },
+    { value: 'tired', label: 'Tired', emoji: '😴' },
+    { value: 'angry', label: 'Angry', emoji: '😠' },
   ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,28 +119,30 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
       
       setUploading(false);
 
+      const journalData = {
+        user_id: user?.id,
+        title: title.trim() || 'Audio Entry',
+        description: description.trim() || null,
+        mood: mood || null,
+        rating: rating,
+        entry_date: entryDate,
+        entry_time: entryTime || null,
+        media_urls: mediaUrls.length > 0 ? mediaUrls : null,
+        audio_urls: audioUrls.length > 0 ? audioUrls : null,
+        spotify_track_id: selectedTrack?.id || null,
+        spotify_track_name: selectedTrack?.name || null,
+        spotify_artist: selectedTrack?.artists.map(a => a.name).join(', ') || null,
+        spotify_preview_url: selectedTrack?.preview_url || null
+      };
+
       const { error } = await supabase
         .from('journal_entries')
-        .insert({
-          user_id: user?.id,
-          title: title.trim() || 'Audio Entry',
-          description: description.trim() || null,
-          mood: mood || null,
-          rating: rating,
-          entry_date: entryDate,
-          entry_time: entryTime || null,
-          media_urls: mediaUrls.length > 0 ? mediaUrls : null,
-          audio_urls: audioUrls.length > 0 ? audioUrls : null,
-          spotify_track_id: selectedTrack?.id || null,
-          spotify_track_name: selectedTrack?.name || null,
-          spotify_artist: selectedTrack?.artists.map(a => a.name).join(', ') || null,
-          spotify_preview_url: selectedTrack?.preview_url || null
-        });
+        .insert(journalData);
 
       if (error) throw error;
 
       toast({
-        title: '✨ Memory Created!',
+        title: 'Memory Created!',
         description: 'Your precious moment has been saved to your vault',
       });
 
@@ -166,7 +169,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
             <div></div>
             <CardTitle className="text-3xl flex items-center gap-3">
               <BookOpen className="w-8 h-8" />
-              📖 Create New Memory
+              Create New Memory
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={onCancel} className="text-white hover:bg-white/20">
               <X className="w-5 h-5" />
@@ -178,7 +181,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <Label htmlFor="title" className="text-lg font-medium">Memory Title ✨</Label>
+                <Label htmlFor="title" className="text-lg font-medium">Memory Title</Label>
                 <Input
                   id="title"
                   value={title}
@@ -189,7 +192,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
               </div>
               
               <div className="space-y-3">
-                <Label htmlFor="mood" className="text-lg font-medium">How are you feeling? 😊</Label>
+                <Label htmlFor="mood" className="text-lg font-medium">How are you feeling?</Label>
                 <Select value={mood} onValueChange={setMood}>
                   <SelectTrigger className="border-purple-200 focus:border-purple-500">
                     <SelectValue placeholder="Select your mood" />
@@ -206,7 +209,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="description" className="text-lg font-medium">Tell your story 📝</Label>
+              <Label htmlFor="description" className="text-lg font-medium">Tell your story</Label>
               <Textarea
                 id="description"
                 value={description}
@@ -218,20 +221,20 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
             </div>
 
             <div className="space-y-3">
-              <Label className="text-lg font-medium">🎙️ Record Your Thoughts</Label>
+              <Label className="text-lg font-medium">Record Your Thoughts</Label>
               <AudioRecorder 
                 onAudioReady={handleAudioReady}
                 onRemove={() => setAudioFiles([])}
               />
               {audioFiles.length > 0 && (
                 <div className="text-sm text-green-600 font-medium">
-                  ✅ {audioFiles.length} audio recording(s) ready
+                  {audioFiles.length} audio recording(s) ready
                 </div>
               )}
             </div>
 
             <div className="space-y-3">
-              <Label className="text-lg font-medium">🎵 Add Background Music</Label>
+              <Label className="text-lg font-medium">Add Background Music</Label>
               <SpotifySelector
                 onTrackSelect={setSelectedTrack}
                 selectedTrack={selectedTrack}
@@ -241,7 +244,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-3">
-                <Label htmlFor="date" className="text-lg font-medium">📅 Date</Label>
+                <Label htmlFor="date" className="text-lg font-medium">Date</Label>
                 <Input
                   id="date"
                   type="date"
@@ -253,7 +256,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
               </div>
               
               <div className="space-y-3">
-                <Label htmlFor="time" className="text-lg font-medium">🕐 Time</Label>
+                <Label htmlFor="time" className="text-lg font-medium">Time</Label>
                 <Input
                   id="time"
                   type="time"
@@ -264,7 +267,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
               </div>
 
               <div className="space-y-3">
-                <Label className="text-lg font-medium">⭐ Rate this moment</Label>
+                <Label className="text-lg font-medium">Rate this moment</Label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Button
@@ -287,7 +290,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
             </div>
 
             <div className="space-y-3">
-              <Label className="text-lg font-medium">📸 Add Photos & Videos</Label>
+              <Label className="text-lg font-medium">Add Photos & Videos</Label>
               <div className="border-2 border-dashed border-blue-300 rounded-xl p-6 text-center bg-blue-50/50 hover:bg-blue-100/50 transition-colors">
                 <input
                   type="file"
@@ -340,7 +343,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
                 disabled={loading || uploading}
                 className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                {uploading ? '📤 Uploading...' : loading ? '💫 Saving...' : '✨ Save Memory'}
+                {uploading ? 'Uploading...' : loading ? 'Saving...' : 'Save Memory'}
               </Button>
             </div>
           </form>

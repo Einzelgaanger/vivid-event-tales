@@ -21,6 +21,14 @@ interface JournalEntry {
   entry_time: string | null;
   media_urls: string[] | null;
   created_at: string;
+  audio_urls: string[] | null;
+  spotify_track_id: string | null;
+  spotify_track_name: string | null;
+  spotify_artist: string | null;
+  spotify_preview_url: string | null;
+  tags: string[] | null;
+  updated_at: string;
+  user_id: string;
 }
 
 export function JournalPage() {
@@ -73,7 +81,7 @@ export function JournalPage() {
     setShowCreateForm(false);
     fetchEntries();
     toast({
-      title: 'Memory Saved! 🎉',
+      title: 'Memory Saved!',
       description: 'Your journal entry has been created successfully'
     });
   };
@@ -110,10 +118,10 @@ export function JournalPage() {
       {/* Header */}
       <div className="text-center py-8">
         <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Your Memory Journal 📖
+          Your Memory Journal
         </h1>
         <p className="text-gray-600 text-lg">
-          Capture life's beautiful moments, one memory at a time ✨
+          Capture life's beautiful moments, one memory at a time
         </p>
       </div>
 
@@ -122,7 +130,7 @@ export function JournalPage() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Search your memories... 🔍"
+            placeholder="Search your memories..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -199,7 +207,7 @@ export function JournalPage() {
               onClick={() => setShowCreateForm(true)}
               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
             >
-              Create First Memory ✨
+              Create First Memory
             </Button>
           )}
         </Card>
