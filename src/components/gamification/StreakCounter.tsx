@@ -24,7 +24,7 @@ export function StreakCounter() {
       const { data } = await supabase
         .from('streaks')
         .select('*')
-        .eq('user_id', user?.id as string)
+        .eq('user_id', user?.id)
         .maybeSingle();
       
       if (data) {

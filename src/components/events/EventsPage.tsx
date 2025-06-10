@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,11 +46,11 @@ export function EventsPage() {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .eq('user_id', user.id as string)
+        .eq('user_id', user.id)
         .order('event_date', { ascending: true });
 
       if (error) throw error;
-      setEvents((data as Event[]) || []);
+      setEvents(data || []);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({

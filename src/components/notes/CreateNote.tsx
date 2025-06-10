@@ -9,9 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, FileText } from 'lucide-react';
-import type { Database } from '@/integrations/supabase/types';
-
-type NoteInsert = Database['public']['Tables']['notes']['Insert'];
 
 interface CreateNoteProps {
   onSuccess: () => void;
@@ -39,15 +36,15 @@ export function CreateNote({ onSuccess, onCancel }: CreateNoteProps) {
 
     setLoading(true);
     try {
-      const noteData: NoteInsert = {
-        user_id: user.id as string,
+      const noteData = {
+        user_id: user.id,
         title: title.trim(),
         description: content.trim() || null
       };
 
       const { error } = await supabase
         .from('notes')
-        .insert(noteData);
+        .insert([noteData]);
 
       if (error) throw error;
 
