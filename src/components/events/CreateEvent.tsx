@@ -96,7 +96,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
       }
 
       const eventData = {
-        user_id: user?.id,
+        user_id: user?.id!,
         title: title.trim(),
         description: description.trim() || null,
         venue: venue.trim() || null,
@@ -106,11 +106,11 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
         additional_notes: additionalNotes.trim() || null,
         media_urls: mediaUrls.length > 0 ? mediaUrls : null,
         reminder_enabled: reminders.length > 0
-      };
+      } as const;
 
       const { data: eventResult, error: eventError } = await supabase
         .from('events')
-        .insert([eventData])
+        .insert(eventData)
         .select()
         .single();
 

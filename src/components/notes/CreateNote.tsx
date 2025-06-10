@@ -44,7 +44,7 @@ export function CreateNote({ onSuccess, onCancel }: CreateNoteProps) {
 
       const { error } = await supabase
         .from('notes')
-        .insert([noteData]);
+        .insert(noteData);
 
       if (error) throw error;
 

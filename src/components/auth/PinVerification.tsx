@@ -35,7 +35,7 @@ export function PinVerification({ onVerified }: PinVerificationProps) {
 
       if (error && error.code !== 'PGRST116') throw error;
 
-      if (data && data.pin_enabled) {
+      if (data?.pin_enabled) {
         setHasPinEnabled(true);
       } else {
         onVerified();
@@ -67,7 +67,7 @@ export function PinVerification({ onVerified }: PinVerificationProps) {
 
       if (error) throw error;
 
-      if (data && data.pin_code === pin) {
+      if (data?.pin_code === pin) {
         localStorage.setItem('lastActivity', Date.now().toString());
         onVerified();
       } else {
