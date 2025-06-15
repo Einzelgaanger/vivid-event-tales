@@ -43,11 +43,11 @@ export function JournalPage() {
       const { data, error } = await supabase
         .from('journal_entries')
         .select('*')
-        .eq('user_id', user?.id!)
+        .eq('user_id', user?.id! as any)
         .order('entry_date', { ascending: false });
 
       if (error) throw error;
-      setEntries(data || []);
+      setEntries((data as JournalEntry[]) || []);
     } catch (error) {
       console.error('Error fetching entries:', error);
       toast({

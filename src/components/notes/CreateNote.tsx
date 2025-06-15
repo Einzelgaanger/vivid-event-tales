@@ -16,8 +16,6 @@ interface CreateNoteProps {
   onCancel: () => void;
 }
 
-type NoteInsert = Database['public']['Tables']['notes']['Insert'];
-
 export function CreateNote({ onSuccess, onCancel }: CreateNoteProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -39,7 +37,7 @@ export function CreateNote({ onSuccess, onCancel }: CreateNoteProps) {
 
     setLoading(true);
     try {
-      const noteData: NoteInsert = {
+      const noteData = {
         user_id: user.id,
         title: title.trim(),
         description: content.trim() || null
@@ -47,7 +45,7 @@ export function CreateNote({ onSuccess, onCancel }: CreateNoteProps) {
 
       const { error } = await supabase
         .from('notes')
-        .insert(noteData);
+        .insert(noteData as any);
 
       if (error) throw error;
 

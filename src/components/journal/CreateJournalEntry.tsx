@@ -137,7 +137,7 @@ export function CreateJournalEntry({ onSuccess, onCancel }: CreateJournalEntryPr
 
       const { error } = await supabase
         .from('journal_entries')
-        .insert([journalData]);
+        .insert([journalData as any]);
 
       if (error) throw error;
 

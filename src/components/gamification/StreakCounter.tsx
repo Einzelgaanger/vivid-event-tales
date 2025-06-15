@@ -26,11 +26,11 @@ export function StreakCounter() {
       const { data } = await supabase
         .from('streaks')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user.id as any)
         .maybeSingle();
       
       if (data) {
-        setStreak(data);
+        setStreak(data as Streak);
       }
     } catch (error) {
       console.error('Error fetching streak:', error);
