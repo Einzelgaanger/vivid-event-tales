@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +11,24 @@ import { Plus, Search, Calendar } from 'lucide-react';
 import { CreateEvent } from './CreateEvent';
 import { EditEvent } from './EditEvent';
 import { EventCard } from './EventCard';
-import type { Database } from '@/integrations/supabase/types';
 
-type Event = Database['public']['Tables']['events']['Row'];
+interface Event {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  venue: string | null;
+  event_date: string;
+  event_time: string | null;
+  urgency: string | null;
+  additional_notes: string | null;
+  media_urls: string[] | null;
+  reminder_enabled: boolean | null;
+  status: string | null;
+  tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
 
 export function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -56,7 +72,7 @@ export function EventsPage() {
         .order('event_date', { ascending: true });
 
       if (error) throw error;
-      setEvents(data || []);
+      setEvents((data as Event[]) || []);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
