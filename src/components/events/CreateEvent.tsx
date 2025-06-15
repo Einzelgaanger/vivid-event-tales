@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, Upload, Calendar, MapPin, Clock } from 'lucide-react';
 import { EventReminders } from './EventReminders';
+import type { Database } from '@/integrations/supabase/types';
 
 interface CreateEventProps {
   onSuccess: () => void;
@@ -21,6 +21,8 @@ interface Reminder {
   id: string;
   datetime: string;
 }
+
+type EventInsert = Database['public']['Tables']['events']['Insert'];
 
 export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
   const [title, setTitle] = useState('');
@@ -95,7 +97,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
         setUploading(false);
       }
 
-      const eventData = {
+      const eventData: EventInsert = {
         user_id: user?.id!,
         title: title.trim(),
         description: description.trim() || null,
@@ -106,7 +108,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
         additional_notes: additionalNotes.trim() || null,
         media_urls: mediaUrls.length > 0 ? mediaUrls : null,
         reminder_enabled: reminders.length > 0
-      } as const;
+      };
 
       const { data: eventResult, error: eventError } = await supabase
         .from('events')
