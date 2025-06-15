@@ -68,11 +68,11 @@ export function EventsPage() {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user.id as any)
         .order('event_date', { ascending: true });
 
       if (error) throw error;
-      setEvents((data as Event[]) || []);
+      setEvents((data as unknown as Event[]) || []);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
@@ -110,7 +110,7 @@ export function EventsPage() {
       const { error } = await supabase
         .from('events')
         .delete()
-        .eq('id', eventId);
+        .eq('id', eventId as any);
 
       if (error) throw error;
 
@@ -238,7 +238,8 @@ export function EventsPage() {
                   key={event.id}
                   event={event}
                   onEdit={setEditingEvent}
-                  onDelete={deleteEvent}
+                  onDelete={() => deleteEvent(event.id)}
+                  onUpdate={fetchEvents}
                 />
               ))}
             </div>
@@ -263,8 +264,8 @@ export function EventsPage() {
                   key={event.id}
                   event={event}
                   onEdit={setEditingEvent}
-                  onDelete={deleteEvent}
-                  isPast={true}
+                  onDelete={() => deleteEvent(event.id)}
+                  onUpdate={fetchEvents}
                 />
               ))}
             </div>

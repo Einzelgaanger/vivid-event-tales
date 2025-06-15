@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -110,7 +109,7 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
       const { data: eventResult, error: eventError } = await supabase
         .from('events')
-        .insert([eventData])
+        .insert(eventData as any)
         .select()
         .single();
 
@@ -118,13 +117,13 @@ export function CreateEvent({ onSuccess, onCancel }: CreateEventProps) {
 
       if (reminders.length > 0 && eventResult) {
         const reminderInserts = reminders.map(reminder => ({
-          event_id: eventResult.id,
+          event_id: (eventResult as any).id,
           reminder_datetime: reminder.datetime
         }));
         
         const { error: reminderError } = await supabase
           .from('event_reminders')
-          .insert(reminderInserts);
+          .insert(reminderInserts as any);
         
         if (reminderError) throw reminderError;
       }

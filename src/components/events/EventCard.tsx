@@ -18,17 +18,33 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { EditEvent } from './EditEvent';
-import type { Database } from '@/integrations/supabase/types';
 
-type Event = Database['public']['Tables']['events']['Row'];
+interface Event {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  venue: string | null;
+  event_date: string;
+  event_time: string | null;
+  urgency: string | null;
+  additional_notes: string | null;
+  media_urls: string[] | null;
+  reminder_enabled: boolean | null;
+  status: string | null;
+  tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
 
 interface EventCardProps {
   event: Event;
   onDelete: () => void;
   onUpdate: () => void;
+  onEdit: (event: Event) => void;
 }
 
-export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
+export function EventCard({ event, onDelete, onUpdate, onEdit }: EventCardProps) {
   const [showEdit, setShowEdit] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -233,7 +249,7 @@ export function EventCard({ event, onDelete, onUpdate }: EventCardProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowEdit(true)}
+              onClick={() => onEdit(event)}
             >
               <Edit className="w-4 h-4" />
             </Button>
