@@ -32,7 +32,7 @@ export function NoteCard({ note, onDelete, onUpdate }: NoteCardProps) {
       const { error } = await supabase
         .from('notes')
         .delete()
-        .eq('id', note.id);
+        .eq('id', note.id as any);
 
       if (error) throw error;
 

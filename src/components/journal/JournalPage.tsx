@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,7 +46,7 @@ export function JournalPage() {
         .order('entry_date', { ascending: false });
 
       if (error) throw error;
-      setEntries((data as JournalEntry[]) || []);
+      setEntries((data as unknown as JournalEntry[]) || []);
     } catch (error) {
       console.error('Error fetching entries:', error);
       toast({

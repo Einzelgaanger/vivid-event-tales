@@ -72,11 +72,11 @@ export function NotesManager() {
       const { data, error } = await supabase
         .from('notes')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id as any)
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      setNotes(data || []);
+      setNotes((data as unknown as Note[]) || []);
     } catch (error) {
       console.error('Error fetching notes:', error);
       toast({
@@ -110,8 +110,8 @@ export function NotesManager() {
             content: content.trim(),
             category: category,
             updated_at: new Date().toISOString()
-          })
-          .eq('id', editingNote.id);
+          } as any)
+          .eq('id', editingNote.id as any);
 
         if (error) throw error;
         
@@ -128,7 +128,7 @@ export function NotesManager() {
             title: title.trim(),
             content: content.trim(),
             category: category
-          });
+          } as any);
 
         if (error) throw error;
         
@@ -157,7 +157,7 @@ export function NotesManager() {
       const { error } = await supabase
         .from('notes')
         .delete()
-        .eq('id', noteId);
+        .eq('id', noteId as any);
 
       if (error) throw error;
 

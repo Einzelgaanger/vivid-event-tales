@@ -30,7 +30,7 @@ export function StreakCounter() {
         .maybeSingle();
       
       if (data) {
-        setStreak(data as Streak);
+        setStreak(data as unknown as Streak);
       }
     } catch (error) {
       console.error('Error fetching streak:', error);
