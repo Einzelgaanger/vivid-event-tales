@@ -55,15 +55,15 @@ export function ProfileSettingsPage() {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id!)
+        .eq('id', user?.id as any)
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
-        setProfile(data);
-        setUsername(data.username || '');
-        setFullName(data.full_name || '');
+        setProfile(data as unknown as Profile);
+        setUsername((data as any).username || '');
+        setFullName((data as any).full_name || '');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -77,17 +77,17 @@ export function ProfileSettingsPage() {
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
-        .eq('user_id', user?.id!)
+        .eq('user_id', user?.id as any)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
-        setPinEnabled(data.pin_enabled || false);
-        setPinCode(data.pin_code || '');
-        setReminderEnabled(data.notification_enabled || false);
-        setReminderTime(data.notification_time || '09:00');
-        setReminderFrequency(data.notification_frequency || 'daily');
+        setPinEnabled((data as any).pin_enabled || false);
+        setPinCode((data as any).pin_code || '');
+        setReminderEnabled((data as any).notification_enabled || false);
+        setReminderTime((data as any).notification_time || '09:00');
+        setReminderFrequency((data as any).notification_frequency || 'daily');
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -100,10 +100,10 @@ export function ProfileSettingsPage() {
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          id: user?.id!,
+          id: user?.id as any,
           username: username.trim() || null,
           full_name: fullName.trim() || null,
-        });
+        } as any);
 
       if (error) throw error;
 
@@ -149,14 +149,14 @@ export function ProfileSettingsPage() {
       const { error } = await supabase
         .from('user_settings')
         .upsert({
-          user_id: user?.id!,
+          user_id: user?.id as any,
           pin_enabled: pinEnabled,
           pin_code: pinEnabled ? pinCode : null,
           notification_enabled: reminderEnabled,
           notification_time: reminderTime,
           notification_frequency: reminderFrequency,
           updated_at: new Date().toISOString()
-        });
+        } as any);
 
       if (error) throw error;
 

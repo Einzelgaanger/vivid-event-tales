@@ -37,15 +37,15 @@ export function ProfilePage() {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
+        .eq('id', user?.id as any)
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
-        setProfile(data);
-        setUsername(data.username || '');
-        setFullName(data.full_name || '');
+        setProfile(data as unknown as Profile);
+        setUsername((data as any).username || '');
+        setFullName((data as any).full_name || '');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -65,10 +65,10 @@ export function ProfilePage() {
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          id: user?.id,
+          id: user?.id as any,
           username: username.trim() || null,
           full_name: fullName.trim() || null,
-        });
+        } as any);
 
       if (error) throw error;
 

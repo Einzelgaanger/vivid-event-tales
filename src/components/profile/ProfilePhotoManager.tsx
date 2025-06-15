@@ -69,8 +69,8 @@ export function ProfilePhotoManager() {
       // Update user profile
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: data.publicUrl })
-        .eq('id', user?.id);
+        .update({ avatar_url: data.publicUrl } as any)
+        .eq('id', user?.id as any);
 
       if (updateError) throw updateError;
 
@@ -103,8 +103,8 @@ export function ProfilePhotoManager() {
       // Update profile
       const { error } = await supabase
         .from('profiles')
-        .update({ avatar_url: null })
-        .eq('id', user?.id);
+        .update({ avatar_url: null } as any)
+        .eq('id', user?.id as any);
 
       if (error) throw error;
 
